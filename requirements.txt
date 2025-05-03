@@ -1,0 +1,9 @@
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+SQLAlchemy>=2.0.0
+asyncpg>=0.28.0
+keylin
+python-dotenv
+python-jose[cryptography]
+email-validator
+fastapi-users[sqlalchemy]>=12.0.0
