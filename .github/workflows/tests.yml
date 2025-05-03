@@ -36,6 +36,8 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/ -v --cov=src/locksmitha --cov-branch --cov-report=xml
+        env:
+          KEYLIN_JWT_SECRET: "changeme"
 
       - name: Upload coverage
         uses: codecov/codecov-action@v5
