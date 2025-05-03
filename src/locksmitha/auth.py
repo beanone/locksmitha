@@ -1,13 +1,16 @@
 """User manager and authentication backend setup for locksmitha login service."""
+
 import logging
-from typing import AsyncGenerator
-from keylin.db import get_user_db
-from keylin.models import User
+from collections.abc import AsyncGenerator
+
+from fastapi import Depends
 from fastapi_users.manager import BaseUserManager
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
-from fastapi import Depends
+from keylin.db import get_user_db
+from keylin.models import User
 
 logger = logging.getLogger("locksmitha.auth")
+
 
 class UserManager(BaseUserManager[User, int]):
     reset_password_token_secret = "changeme"
@@ -27,7 +30,8 @@ class UserManager(BaseUserManager[User, int]):
 
     # Add custom logic if needed
 
+
 async def get_user_manager(
-    user_db: SQLAlchemyUserDatabase = Depends(get_user_db),
+    user_db: SQLAlchemyUserDatabase = Depends(get_user_db)
 ) -> AsyncGenerator[UserManager, None]:
     yield UserManager(user_db)

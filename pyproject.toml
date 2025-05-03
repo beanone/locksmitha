@@ -28,13 +28,11 @@ packages = ["src/locksmitha"]
 [tool.hatch.version]
 path = "src/locksmitha/__init__.py"
 
-[tool.ruff]
-line-length = 88
-target-version = "py310"
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "B", "UP", "PL", "RUF"]
-ignore = ["PLR2004"]
+ignore = ["PLR2004", "B008"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["locksmitha"]
 
 [tool.pytest.ini_options]

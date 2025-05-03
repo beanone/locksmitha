@@ -1,6 +1,7 @@
-import pytest
 from fastapi.testclient import TestClient
+
 from src.locksmitha.main import app
+
 
 def test_health_endpoint():
     client = TestClient(app)
