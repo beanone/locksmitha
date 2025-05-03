@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="docs/assets/logos/locksmitha_logo.svg" alt="Locksmitha Logo" width="64" height="64"/>
+</div>
+
 # Locksmitha Login Service
 # Graph Reader API
 
