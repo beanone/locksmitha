@@ -2,7 +2,7 @@
 # Graph Reader API
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/beanone/locksmitha/main/docs/assets/logos/banner.svg" alt="Graph Context Banner" width="100%">
+  <img src="https://raw.githubusercontent.com/beanone/locksmitha/main/docs/assets/logos/locksmitha.svg" alt="Graph Context Banner" width="100%">
 </p>
 
 [![GitHub](https://img.shields.io/badge/repo-github.com%2Fbeanone%2Flocksmitha-blue?logo=github)](https://github.com/beanone/locksmitha)
