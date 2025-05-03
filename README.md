@@ -1,13 +1,6 @@
-<table width="100%" border="0" cellspacing="0" cellpadding="0">
-<tr>
-<td style="border:none; vertical-align:middle; padding:0;">
-  <img src="docs/assets/logos/locksmitha.svg" alt="Locksmitha Logo" width="200">
-</td>
-<td style="border:none; vertical-align:middle; padding:0;">
-  <h1 style="margin-left: 10px; display:inline;">Locksmitha Login Service</h1>
-</td>
-</tr>
-</table>
+<div align="center">
+  <img src="docs/assets/logos/locksmitha.svg" alt="Locksmitha Logo" width="200" height="200"/>
+</div>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/beanone/locksmitha/blob/main/LICENSE)
 [![Tests](https://github.com/beanone/locksmitha/actions/workflows/tests.yml/badge.svg)](https://github.com/beanone/locksmitha/actions?query=workflow%3Atests)
