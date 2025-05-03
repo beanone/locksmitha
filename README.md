@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/assets/logos/locksmitha.svg" alt="Locksmitha Logo" width="120" height="120"/>
+  <img src="docs/assets/logos/locksmitha.svg" alt="Locksmitha Logo" width="200" height="200"/>
 </div>
 
 # Locksmitha Login Service
