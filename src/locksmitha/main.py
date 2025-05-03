@@ -5,13 +5,24 @@ from keylin.auth import auth_backend, fastapi_users
 from keylin.schemas import UserRead, UserCreate
 from locksmitha.config import settings
 import logging
+from sqlalchemy.ext.asyncio import create_async_engine
+from keylin.models import Base
+from contextlib import asynccontextmanager
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 
-app = FastAPI(title="Keylin Login Service", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Automatically create tables if they do not exist (dev/CI only)
+    engine = create_async_engine(settings.DATABASE_URL, echo=True)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+
+app = FastAPI(title="Keylin Login Service", version="1.0.0", lifespan=lifespan)
 
 # CORS configuration
 app.add_middleware(
