@@ -1,10 +1,15 @@
 """Main FastAPI application for login service using keylin and fastapi-users."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from keylin.auth import auth_backend, fastapi_users, get_user_manager
+from keylin.auth import auth_backend, fastapi_users
 from keylin.schemas import UserRead, UserCreate
-from keylin.db import get_async_session
-from app.config import settings
+from locksmitha.config import settings
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 app = FastAPI(title="Keylin Login Service", version="1.0.0")
 

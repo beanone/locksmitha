@@ -1,6 +1,65 @@
 # Locksmitha Login Service
 
-A production-ready FastAPI login/authentication service for the beanone organization, modeled after the graph_reader_api project structure.
+A production-ready FastAPI login/authentication service for the beanone organization. **This project is a direct sequel to the [keylin](https://github.com/beanone/keylin/blob/main/README.md) library, providing a full-featured login API and user management backend.**
+
+---
+
+## Overview & Architecture
+
+Locksmitha implements a secure, extensible authentication and user management service using FastAPI, SQLAlchemy, and [keylin](https://github.com/beanone/keylin). It is designed to be the authentication backend for modern web applications and microservices.
+
+**Key features:**
+- JWT-based authentication
+- User registration, login, and profile endpoints
+- Password reset and email verification (if enabled)
+- Security-compliant logging and rate limiting
+- Ready for RBAC/permission extension
+- Dockerized and CI/CD ready
+
+### Architecture Diagram
+```mermaid
+graph TD
+    %% Out-of-scope (future) components use dashed borders and gray color
+    style UI stroke-dasharray: 5 5,stroke:#bbb,fill:#f9f9f9
+    style APP stroke-dasharray: 5 5,stroke:#bbb,fill:#f9f9f9
+
+    subgraph User Management UI [User Management UI]
+        UI[User Management UI]
+    end
+    subgraph Application Service [Application Service]
+        APP[App Service]
+    end
+    subgraph Locksmitha Login Service
+        A[FastAPI + keylin]
+        DB[(Postgres DB)]
+    end
+    UI -- REST/JSON --> A
+    APP -- REST/JSON --> A
+    A -- SQLAlchemy/asyncpg --> DB
+```
+
+---
+
+## Endpoints & Behavior
+
+| Endpoint                | Method | Auth Required | Description                        |
+|------------------------|--------|--------------|------------------------------------|
+| `/auth/jwt/login`      | POST   | No           | User login (returns JWT)           |
+| `/auth/register`       | POST   | No           | User registration                  |
+| `/users/me`            | GET    | Yes          | Get current user info              |
+| `/users/`              | GET    | Yes (admin)  | List users (admin only)            |
+| `/auth/forgot-password`| POST   | No           | Request password reset (if enabled)|
+| `/auth/reset-password` | POST   | No           | Reset password (if enabled)        |
+| `/auth/verify`         | POST   | No           | Email verification (if enabled)    |
+| `/health`              | GET    | No           | Health check endpoint              |
+
+- **Registration and login are open to all.**
+- **User info and user listing require authentication (and admin for listing).**
+- **Password reset and verification are optional, depending on config.**
+
+See [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md) for request/response examples and integration details.
+
+---
 
 ## Project Structure
 
@@ -23,7 +82,9 @@ locksmitha/
 └── README.md
 ```
 
-## Setup
+---
+
+## Setup & Usage
 
 1. **Create and activate a virtual environment:**
     ```bash
@@ -47,33 +108,41 @@ locksmitha/
       ALLOWED_ORIGINS=http://localhost,http://127.0.0.1
       ```
 
-## Running the Service
+4. **Run the service:**
+    ```bash
+    docker-compose up --build
+    # or
+    uvicorn src.locksmitha.main:app --reload
+    ```
 
-```bash
-docker-compose up --build
-```
+5. **Testing:**
+    ```bash
+    pytest
+    ```
 
-Or locally:
+6. **Linting:**
+    ```bash
+    pre-commit run --all-files
+    ```
 
-```bash
-uvicorn src.locksmitha.main:app --reload
-```
-
-## Testing
-
-```bash
-pytest
-```
-
-## Linting
-
-```bash
-pre-commit run --all-files
-```
+---
 
 ## CI/CD
-
 - GitHub Actions for linting, testing, and Docker publishing are configured in `.github/workflows/`.
+
+---
+
+## Bigger Picture & Next Sequels
+
+- **This project is the authentication backend for the beanone ecosystem.**
+- **Next sequels:**
+  - A service that uses Locksmitha as its login/auth backend (see future README).
+  - A user management UI that integrates with this service for admin/user operations.
+- **For user model and integration details, see:**
+  - [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md)
+  - [keylin README](https://github.com/beanone/keylin/blob/main/README.md)
+
+---
 
 ## License
 

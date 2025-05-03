@@ -25,6 +25,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/locksmitha"]
 
+[tool.hatch.version]
+path = "src/locksmitha/__init__.py"
+
 [tool.ruff]
 line-length = 88
 target-version = "py310"
