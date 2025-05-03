@@ -1,6 +1,6 @@
-<div align="center">
-  <img src="docs/assets/logos/locksmitha.svg" alt="Locksmitha Logo" width="200" height="200"/>
-</div>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/beanone/locksmitha/refs/heads/main/docs/assets/logos/locksmitha.svg" alt="Locksmitha Login Service" width="100%">
+</p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/beanone/locksmitha/blob/main/LICENSE)
 [![Tests](https://github.com/beanone/locksmitha/actions/workflows/tests.yml/badge.svg)](https://github.com/beanone/locksmitha/actions?query=workflow%3Atests)
