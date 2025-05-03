@@ -4,7 +4,14 @@
 
 # Locksmitha Login Service
 
-[![GitHub](https://img.shields.io/badge/repo-github.com%2Fbeanone%2Flocksmitha-blue?logo=github)](https://github.com/beanone/locksmitha)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/beanone/locksmitha/blob/main/LICENSE)
+[![Tests](https://github.com/beanone/locksmitha/actions/workflows/tests.yml/badge.svg)](https://github.com/beanone/locksmitha/actions?query=workflow%3Atests)
+[![Coverage](https://codecov.io/gh/beanone/locksmitha/branch/main/graph/badge.svg)](https://codecov.io/gh/beanone/locksmitha)
+[![Code Quality](https://img.shields.io/badge/code%20style-ruff-000000)](https://github.com/astral-sh/ruff)
+[![Docker Pulls](https://img.shields.io/docker/pulls/hongyanworkshop123/graph-reader-api)](https://hub.docker.com/r/hongyanworkshop123/graph-reader-api)
+[![Docker Image Size](https://img.shields.io/docker/image-size/hongyanworkshop123/graph-reader-api/latest)](https://hub.docker.com/r/hongyanworkshop123/graph-reader-api)
+[![Security Scan](https://github.com/beanone/locksmitha/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/beanone/locksmitha/actions/workflows/docker-publish.yml)
+
 
 A production-ready FastAPI login/authentication service for the beanone organization. **This project is a direct sequel to the [keylin](https://github.com/beanone/keylin/blob/main/README.md) library, providing a full-featured login API and user management backend.**
 
