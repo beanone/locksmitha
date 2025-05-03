@@ -8,10 +8,7 @@
 [![Tests](https://github.com/beanone/locksmitha/actions/workflows/tests.yml/badge.svg)](https://github.com/beanone/locksmitha/actions?query=workflow%3Atests)
 [![Coverage](https://codecov.io/gh/beanone/locksmitha/branch/main/graph/badge.svg)](https://codecov.io/gh/beanone/locksmitha)
 [![Code Quality](https://img.shields.io/badge/code%20style-ruff-000000)](https://github.com/astral-sh/ruff)
-[![Docker Pulls](https://img.shields.io/docker/pulls/hongyanworkshop123/graph-reader-api)](https://hub.docker.com/r/hongyanworkshop123/graph-reader-api)
-[![Docker Image Size](https://img.shields.io/docker/image-size/hongyanworkshop123/graph-reader-api/latest)](https://hub.docker.com/r/hongyanworkshop123/graph-reader-api)
 [![Security Scan](https://github.com/beanone/locksmitha/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/beanone/locksmitha/actions/workflows/docker-publish.yml)
-
 
 A production-ready FastAPI login/authentication service for the beanone organization. **This project is a direct sequel to the [keylin](https://github.com/beanone/keylin/blob/main/README.md) library, providing a full-featured login API and user management backend.**
 
@@ -142,18 +139,6 @@ locksmitha/
 
 ## CI/CD
 - GitHub Actions for linting, testing, and Docker publishing are configured in `.github/workflows/`.
-
----
-
-## Bigger Picture & Next Sequels
-
-- **This project is the authentication backend for the beanone ecosystem.**
-- **Next sequels:**
-  - A service that uses Locksmitha as its login/auth backend (see future README).
-  - A user management UI that integrates with this service for admin/user operations.
-- **For user model and integration details, see:**
-  - [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md)
-  - [keylin README](https://github.com/beanone/keylin/blob/main/README.md)
 
 ---
 
