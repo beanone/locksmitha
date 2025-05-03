@@ -1,13 +1,8 @@
 <div align="center">
-  <img src="docs/assets/logos/locksmitha.svg" alt="Locksmitha Logo" width="64" height="64"/>
+  <img src="docs/assets/logos/locksmitha.svg" alt="Locksmitha Logo" width="120" height="120"/>
 </div>
 
 # Locksmitha Login Service
-# Graph Reader API
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/beanone/locksmitha/main/docs/assets/logos/locksmitha.svg" alt="Graph Context Banner" width="100%">
-</p>
 
 [![GitHub](https://img.shields.io/badge/repo-github.com%2Fbeanone%2Flocksmitha-blue?logo=github)](https://github.com/beanone/locksmitha)
 
