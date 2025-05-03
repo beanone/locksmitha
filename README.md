@@ -1,7 +1,7 @@
-<table>
+<table border="0">
 <tr>
-<td><img src="docs/assets/logos/locksmitha_logo.svg" alt="Locksmitha Logo" width="200"></td>
-<td><h1 style="margin-left: 10px;">Locksmitha Login Service</h1></td>
+<td style="border:none;"><img src="docs/assets/logos/locksmitha_logo.svg" alt="Locksmitha Logo" width="60"></td>
+<td style="border:none;"><h1 style="margin-left: 10px;">Locksmitha Login Service</h1></td>
 </tr>
 </table>
 
