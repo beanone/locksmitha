@@ -55,3 +55,6 @@ markers = [
     "unit: marks tests as unit tests (deselect with '-m \"not unit\"')"
 ]
 asyncio_default_fixture_loop_scope = "function"
+
+[tool.poetry.dev-dependencies]
+pytest-httpserver = "*"
