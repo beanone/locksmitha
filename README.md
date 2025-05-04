@@ -237,6 +237,20 @@ See [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md) for request/res
 
 ---
 
+## Environment Variables for Authentication Integration
+
+To integrate with the Locksmitha login service, configure the following environment variables in your `.env`:
+
+```env
+LOCKSMITHA_URL=http://localhost:8001  # URL and port of the Locksmitha login service
+KEYLIN_JWT_SECRET=changeme            # Must match the JWT secret used by Locksmitha
+```
+
+- `LOCKSMITHA_URL` is used to construct the OAuth2 token URL for authentication.
+- `KEYLIN_JWT_SECRET` is used to validate JWTs issued by Locksmitha.
+
+---
+
 ## Integrating Your FastAPI Service with the Login Service
 
 To use Locksmitha as your authentication provider in another FastAPI application, follow these steps:
@@ -245,7 +259,7 @@ To use Locksmitha as your authentication provider in another FastAPI application
 - Direct your frontend or API clients to the login service's `/auth/jwt/login` endpoint to obtain a JWT access token.
 - Example request:
     ```http
-    POST /auth/jwt/login
+    POST ${LOCKSMITHA_URL}/auth/jwt/login
     Content-Type: application/json
     {
       "username": "user@example.com",
@@ -257,43 +271,38 @@ To use Locksmitha as your authentication provider in another FastAPI application
 ### 2. Use JWTs to Secure Your FastAPI Endpoints
 - Require clients to include the JWT in the `Authorization: Bearer <token>` header for protected endpoints in your service.
 - In your FastAPI app, validate the JWT using the same secret as the login service (from `KEYLIN_JWT_SECRET`).
+- **Recommended setup:**
+    ```python
+    import os
+    from fastapi.security import OAuth2PasswordBearer
 
-#### Example: FastAPI Dependency for JWT Validation
-```python
-from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
-import os
+    LOCKSMITHA_URL = os.getenv("LOCKSMITHA_URL", "http://localhost:8001")
+    oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{LOCKSMITHA_URL}/auth/jwt/login")
+    # ... rest of your authentication dependency ...
+    ```
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/jwt/login")
-JWT_SECRET = os.getenv("KEYLIN_JWT_SECRET", "changeme")
-ALGORITHM = "HS256"  # Use the same algorithm as the login service
+### 3. Integration Options
+- **In-Service Integration:**
+  - Use the authentication dependency (`Depends(get_current_user)`) directly in your FastAPI endpoints.
+  - Best for microservices or when you control the FastAPI codebase.
+- **Out-of-Service Integration:**
+  - Use an API gateway, reverse proxy, or external middleware to validate JWTs before requests reach your FastAPI app.
+  - Best for legacy services, polyglot environments, or when you want to centralize auth logic.
+- Choose the approach that best fits your deployment and security requirements.
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-        return payload
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-```
-- Use `Depends(get_current_user)` in your route dependencies to protect endpoints.
-
-### 3. Fetch User Info
+### 4. Fetch User Info
 - To get user details, call the login service's `/users/me` endpoint with the JWT:
     ```http
-    GET /users/me
+    GET ${LOCKSMITHA_URL}/users/me
     Authorization: Bearer <access_token>
     ```
 
-### 4. Environment and Configuration
+### 5. Environment and Configuration
 - Ensure your service has access to the login service's JWT secret (or public key if using asymmetric JWTs).
 - Set CORS and network rules to allow communication between your service and the login service.
 - Do **not** implement your own registration or password reset; delegate these to the login service endpoints.
 
-### 5. Example Architecture
+### 6. Example Architecture
 ```
 [Client] ──> [Your FastAPI Service] ──> [Locksmitha Login Service]
    |                |                        |
@@ -301,6 +310,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
    |                |                        |
    └───────────────>┴────────────────────────┘
 ```
+
+For more advanced integration (e.g., OAuth2, SSO, or custom claims), refer to the [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md), [fastapi-users documentation](https://fastapi-users.github.io/fastapi-users/), and [keylin documentation](https://github.com/beanone/keylin).
 
 ---
 
