@@ -41,7 +41,7 @@ jobs:
 
       - name: Run integration tests
         run: |
-          pytest tests/integration -v
+          pytest tests/integration -v --cov=src/locksmitha --cov-branch --cov-report=xml --cov-append
         env:
           KEYLIN_JWT_SECRET: "changeme"
 
