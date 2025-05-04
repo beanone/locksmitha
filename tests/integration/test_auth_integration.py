@@ -29,13 +29,11 @@ def isolated_test_db(monkeypatch):
                 is_active=True,
                 is_superuser=False,
                 is_verified=False,
-                full_name="Integration Test User",
+                full_name="Integration Test User"
             )
             session.add(user)
             await session.commit()
-
     import asyncio
-
     asyncio.run(seed())
 
     # Set env vars for the test
@@ -46,58 +44,28 @@ def isolated_test_db(monkeypatch):
     # Cleanup
     os.remove(db_path)
 
-
 @pytest.mark.asyncio
-def test_integration_with_mock_login_service(isolated_test_db):
+async def test_integration_with_mock_login_service(isolated_test_db):
     import httpx
-    from fastapi import APIRouter
     from httpx import ASGITransport
 
     from locksmitha.main import app
 
-    # Add a temporary debug endpoint to print the DB URL
-    router = APIRouter()
-
-    @router.get("/debug/db_url")
-    def get_db_url():
-        return {"db_url": os.environ.get("KEYLIN_DATABASE_URL")}
-
-    app.include_router(router)
-
     transport = ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        # Simulate login to get a JWT
+        login_response = await client.post(
+            "/auth/jwt/login",
+            data={"username": "testuser@example.com", "password": "testpassword123"},
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        assert login_response.status_code == 200, login_response.text
+        token = login_response.json()["access_token"]
 
-    async def run_test():
-        async with httpx.AsyncClient(
-            transport=transport, base_url="http://test"
-        ) as client:
-            # Debug: check DB URL used by app
-            debug_response = await client.get("/debug/db_url")
-            print("App DB URL at runtime:", debug_response.json())
-
-            # Simulate login to get a JWT
-            login_response = await client.post(
-                "/auth/jwt/login",
-                data={
-                    "username": "testuser@example.com",
-                    "password": "testpassword123",
-                },
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
-            )
-            print("Login response status:", login_response.status_code)
-            print("Login response body:", login_response.text)
-            assert login_response.status_code == 200, login_response.text
-            token = login_response.json()["access_token"]
-
-            # Use the JWT to call /users/me
-            response = await client.get(
-                "/users/me", headers={"Authorization": f"Bearer {token}"}
-            )
-            print("/users/me response status:", response.status_code)
-            print("/users/me response body:", response.text)
-            assert response.status_code == 200, response.text
-            data = response.json()
-            assert data["email"] == "testuser@example.com"
-
-    import asyncio
-
-    asyncio.run(run_test())
+        # Use the JWT to call /users/me
+        response = await client.get(
+            "/users/me", headers={"Authorization": f"Bearer {token}"}
+        )
+        assert response.status_code == 200, response.text
+        data = response.json()
+        assert data["email"] == "testuser@example.com"
