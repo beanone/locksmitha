@@ -48,27 +48,6 @@ graph TD
 
 ---
 
-## Endpoints & Behavior
-
-| Endpoint                | Method | Auth Required | Description                        |
-|------------------------|--------|--------------|------------------------------------|
-| `/auth/jwt/login`      | POST   | No           | User login (returns JWT)           |
-| `/auth/register`       | POST   | No           | User registration                  |
-| `/users/me`            | GET    | Yes          | Get current user info              |
-| `/users/`              | GET    | Yes (admin)  | List users (admin only)            |
-| `/auth/forgot-password`| POST   | No           | Request password reset (if enabled)|
-| `/auth/reset-password` | POST   | No           | Reset password (if enabled)        |
-| `/auth/verify`         | POST   | No           | Email verification (if enabled)    |
-| `/health`              | GET    | No           | Health check endpoint              |
-
-- **Registration and login are open to all.**
-- **User info and user listing require authentication (and admin for listing).**
-- **Password reset and verification are optional, depending on config.**
-
-See [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md) for request/response examples and integration details.
-
----
-
 ## Project Structure
 
 ```
@@ -135,11 +114,177 @@ locksmitha/
 
 ---
 
-## CI/CD
-- GitHub Actions for linting, testing, and Docker publishing are configured in `.github/workflows/`.
+## Database Setup
+
+Locksmitha uses PostgreSQL as its primary database. You must have a running Postgres instance before starting the service.
+
+### 1. Create the Database (Postgres Example)
+
+If you have Docker Compose set up, the database will be created automatically. For manual/local setup:
+
+```bash
+# Start Postgres (if not using Docker)
+sudo service postgresql start
+
+# Create a database and user
+psql -U postgres
+CREATE DATABASE keylindb;
+CREATE USER locksmitha_user WITH PASSWORD 'your_strong_password';
+GRANT ALL PRIVILEGES ON DATABASE keylindb TO locksmitha_user;
+```
+
+### 2. Configure the Connection String
+
+Set the `KEYLIN_DATABASE_URL` environment variable in your `.env` file:
+
+```env
+KEYLIN_DATABASE_URL=postgresql+asyncpg://locksmitha_user:your_strong_password@localhost:5432/keylindb
+```
+
+### 3. Run Migrations
+
+- **Production:** Use Alembic for schema migrations:
+    ```bash
+    alembic upgrade head
+    ```
+- **Development:** Tables can be created automatically on app startup (see `lifespan` in `main.py`).
+
+### 4. Development vs. Production
+- **Development:** You may use SQLite for quick local testing by setting `KEYLIN_DATABASE_URL=sqlite+aiosqlite:///./test.db`.
+- **Production:** Always use PostgreSQL or another robust RDBMS. Run migrations and use strong, unique credentials.
+
+### 5. Best Practices
+- Use strong, unique passwords for database users.
+- Restrict database network access to trusted hosts/services only.
+- Always use migrations (Alembic) to manage schema changes.
+- Regularly back up your database.
+- Never run your application or database as a superuser.
+- Rotate credentials and secrets periodically.
+
+For more details, see the [keylin documentation](https://github.com/beanone/keylin) and your database provider's security guides.
+
+### Using a Pre-Existing Database
+
+If the configured database does not exist, Locksmitha will create a new one automatically (for example, by running migrations or creating tables on startup). However, if you want to use a database that already contains user data, you have several options:
+
+#### 1. Package the Database with Your Docker Image (SQLite)
+- For SQLite, you can copy your pre-populated `.db` file into the Docker image:
+    ```dockerfile
+    COPY ./my_prepopulated.db /app/my_prepopulated.db
+    ```
+- Set your `KEYLIN_DATABASE_URL` to point to this file:
+    ```env
+    KEYLIN_DATABASE_URL=sqlite+aiosqlite:///./my_prepopulated.db
+    ```
+
+#### 2. Mount the Database File or Directory (Recommended)
+- For both SQLite and Postgres, you can mount a host directory or file into the container using Docker volumes:
+    ```bash
+    # For SQLite
+    docker run -v /path/on/host/my_prepopulated.db:/app/my_prepopulated.db ...
+    # For Postgres (mounting data directory, advanced)
+    docker run -v /path/on/host/pgdata:/var/lib/postgresql/data ...
+    ```
+- This allows you to persist data or use a pre-existing database without rebuilding the image.
+
+#### 3. Connect to an Existing Database Instance (Postgres)
+- For Postgres, simply set your `KEYLIN_DATABASE_URL` to point to an existing database instance that already contains user data:
+    ```env
+    KEYLIN_DATABASE_URL=postgresql+asyncpg://user:password@host:5432/existing_db
+    ```
+- Ensure the user has the necessary privileges and the schema matches the expected structure.
+
+#### 4. Permissions and Security
+- When mounting or packaging databases, ensure the container has the correct file permissions to read/write the database.
+- Never expose sensitive database files or credentials in public images or repositories.
+- For production, prefer connecting to managed/external databases and use secure credentials.
+
+For more details on Docker volumes, see the [Docker documentation](https://docs.docker.com/storage/volumes/). For database schema requirements, see the [keylin documentation](https://github.com/beanone/keylin).
 
 ---
 
-## License
+## Endpoints & Behavior
 
-MIT License
+| Endpoint                | Method | Auth Required | Description                        |
+|------------------------|--------|--------------|------------------------------------|
+| `/auth/jwt/login`      | POST   | No           | User login (returns JWT)           |
+| `/auth/register`       | POST   | No           | User registration                  |
+| `/users/me`            | GET    | Yes          | Get current user info              |
+| `/users/`              | GET    | Yes (admin)  | List users (admin only)            |
+| `/auth/forgot-password`| POST   | No           | Request password reset (if enabled)|
+| `/auth/reset-password` | POST   | No           | Reset password (if enabled)        |
+| `/auth/verify`         | POST   | No           | Email verification (if enabled)    |
+| `/health`              | GET    | No           | Health check endpoint              |
+
+- **Registration and login are open to all.**
+- **User info and user listing require authentication (and admin for listing).**
+- **Password reset and verification are optional, depending on config.**
+
+See [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md) for request/response examples and integration details.
+
+---
+
+## Integrating Your FastAPI Service with the Login Service
+
+To use Locksmitha as your authentication provider in another FastAPI application, follow these steps:
+
+### 1. Authenticate Users via the Login Service
+- Direct your frontend or API clients to the login service's `/auth/jwt/login` endpoint to obtain a JWT access token.
+- Example request:
+    ```http
+    POST /auth/jwt/login
+    Content-Type: application/json
+    {
+      "username": "user@example.com",
+      "password": "yourpassword"
+    }
+    ```
+- The response will include an `access_token` (JWT) and `token_type`.
+
+### 2. Use JWTs to Secure Your FastAPI Endpoints
+- Require clients to include the JWT in the `Authorization: Bearer <token>` header for protected endpoints in your service.
+- In your FastAPI app, validate the JWT using the same secret as the login service (from `KEYLIN_JWT_SECRET`).
+
+#### Example: FastAPI Dependency for JWT Validation
+```python
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
+import os
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/jwt/login")
+JWT_SECRET = os.getenv("KEYLIN_JWT_SECRET", "changeme")
+ALGORITHM = "HS256"  # Use the same algorithm as the login service
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+```
+- Use `Depends(get_current_user)` in your route dependencies to protect endpoints.
+
+### 3. Fetch User Info
+- To get user details, call the login service's `/users/me` endpoint with the JWT:
+    ```http
+    GET /users/me
+    Authorization: Bearer <access_token>
+    ```
+
+### 4. Environment and Configuration
+- Ensure your service has access to the login service's JWT secret (or public key if using asymmetric JWTs).
+- Set CORS and network rules to allow communication between your service and the login service.
+- Do **not** implement your own registration or password reset; delegate these to the login service endpoints.
+
+### 5. Example Architecture
+```
+[Client] ──> [Your FastAPI Service] ──> [Locksmitha Login Service]
+   |                |                        |
+   |  (JWT Bearer)  |  (JWT validation)      |
+   |                |                        |
+   └───────────────>┴────────────────────────┘
+```
