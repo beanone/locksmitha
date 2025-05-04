@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 TEST_DB_PATH = os.path.abspath("tests/resources/test.db")
 TEST_DB_URL = f"sqlite+aiosqlite:///{TEST_DB_PATH}"
 
+
 async def seed():
     print(f"Seeding DB at: {TEST_DB_PATH}")
     # Remove old DB if exists
@@ -35,13 +36,14 @@ async def seed():
             is_active=True,
             is_superuser=False,
             is_verified=False,
-            full_name="Integration Test User"
+            full_name="Integration Test User",
         )
         session.add(user)
         print("Committing user...")
         await session.commit()
         print("User committed.")
     print("Seeding complete.")
+
 
 if __name__ == "__main__":
     asyncio.run(seed())
