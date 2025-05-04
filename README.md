@@ -233,6 +233,8 @@ For more details on Docker volumes, see the [Docker documentation](https://docs.
 - **User info and user listing require authentication (and admin for listing).**
 - **Password reset and verification are optional, depending on config.**
 
+- **Note:** The `/users/` endpoint is currently accessible to all authenticated users. Restriction to users with the "admin" role is planned for a future release, once role-based access control is implemented.
+
 See [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md) for request/response examples and integration details.
 
 ---
