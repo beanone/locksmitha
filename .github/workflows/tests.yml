@@ -33,9 +33,15 @@ jobs:
           pip install dist/*.whl
           pip install -r requirements-test.txt
 
-      - name: Run tests
+      - name: Run unit tests
         run: |
-          pytest tests/ -v --cov=src/locksmitha --cov-branch --cov-report=xml
+          pytest tests/unit -v --cov=src/locksmitha --cov-branch --cov-report=xml
+        env:
+          KEYLIN_JWT_SECRET: "changeme"
+
+      - name: Run integration tests
+        run: |
+          pytest tests/integration -v
         env:
           KEYLIN_JWT_SECRET: "changeme"
 
