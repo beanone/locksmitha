@@ -18,6 +18,7 @@
 - [Database Setup](#database-setup)
 - [Endpoints & Behavior](#endpoints--behavior)
 - [Integrating Your FastAPI Service with the Login Service](#integrating-your-fastapi-service-with-the-login-service)
+- [Integration Testing](#integration-testing)
 - [CI/CD](#cicd)
 - [License](#license)
 
@@ -99,6 +100,8 @@ locksmitha/
 3. **Configure environment variables:**
     - Create a `.env` file in the project root with the following variables:
       ```env
+      # CRITICAL: This secret must be identical across all services that use Locksmitha
+      # for authentication. If they don't match, authentication will fail.
       KEYLIN_JWT_SECRET=supersecretjwtkey
       KEYLIN_DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
       KEYLIN_RESET_PASSWORD_SECRET=supersecretresetkey
@@ -239,15 +242,20 @@ See [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md) for request/res
 
 ## Environment Variables for Authentication Integration
 
-To integrate with the Locksmitha login service, configure the following environment variables in your `.env`:
+To integrate with the Locksmitha login service, configure environment variables correctly according to the [setup section](#setup--usage). Incorrect configuration will cause authentication to fail:
 
-```env
-LOCKSMITHA_URL=http://localhost:8001  # URL and port of the Locksmitha login service
-KEYLIN_JWT_SECRET=changeme            # Must match the JWT secret used by Locksmitha
-```
+**Common Issues to Avoid:**
+- Using different `KEYLIN_JWT_SECRET` values across services
+- Using the default secret value in production
+- Incorrect `LOCKSMITHA_URL` that's not accessible from your application
+- Missing or misspelled environment variable names
 
-- `LOCKSMITHA_URL` is used to construct the OAuth2 token URL for authentication.
-- `KEYLIN_JWT_SECRET` is used to validate JWTs issued by Locksmitha.
+**Best Practices:**
+1. Use a secrets manager in production
+2. Rotate secrets regularly
+3. Use different secrets for development, testing, and production
+4. Never commit secrets to version control
+5. Validate environment variables at application startup
 
 ---
 
@@ -312,6 +320,10 @@ To use Locksmitha as your authentication provider in another FastAPI application
 ```
 
 For more advanced integration (e.g., OAuth2, SSO, or custom claims), refer to the [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md), [fastapi-users documentation](https://fastapi-users.github.io/fastapi-users/), and [keylin documentation](https://github.com/beanone/keylin).
+
+## Integration Testing
+
+For detailed instructions on how to write integration tests for services that use Locksmitha for authentication, see [INTEGRATION_TESTING.md](./INTEGRATION_TESTING.md).
 
 ---
 
