@@ -12,6 +12,19 @@ A production-ready FastAPI login/authentication service for the beanone organiza
 
 ---
 
+## Table of Contents
+
+- [Overview & Architecture](#overview--architecture)
+- [Project Structure](#project-structure)
+- [Setup & Usage](#setup--usage)
+- [Database Setup](#database-setup)
+- [Endpoints & Behavior](#endpoints--behavior)
+- [Integrating Your FastAPI Service with the Login Service](#integrating-your-fastapi-service-with-the-login-service)
+- [CI/CD](#cicd)
+- [License](#license)
+
+---
+
 ## Overview & Architecture
 
 Locksmitha implements a secure, extensible authentication and user management service using FastAPI, SQLAlchemy, and [keylin](https://github.com/beanone/keylin). It is designed to be the authentication backend for modern web applications and microservices.
@@ -288,3 +301,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
    |                |                        |
    └───────────────>┴────────────────────────┘
 ```
+
+---
+
+## CI/CD
+
+Locksmitha uses GitHub Actions for CI/CD. The workflow includes:
+- Unit tests
+- Code coverage
+- Security scan
+- Docker image build and push
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/beanone/locksmitha/blob/main/LICENSE) file for more details.
