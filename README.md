@@ -296,7 +296,7 @@ To use Locksmitha as your authentication provider in another FastAPI application
 - **Out-of-Service Integration:**
   - Use an API gateway, reverse proxy, or external middleware to validate JWTs before requests reach your FastAPI app.
   - Best for legacy services, polyglot environments, or when you want to centralize auth logic.
-- Choose the approach that best fits your deployment and security requirements.
+- Choose the approach that best fits your deployment and security requirements (see [Deployment Examples](./docs/deployment_examples.md))
 
 ### 4. Fetch User Info
 - To get user details, call the login service's `/users/me` endpoint with the JWT:
