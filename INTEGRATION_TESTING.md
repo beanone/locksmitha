@@ -13,7 +13,7 @@ When writing integration tests for services that use Locksmitha for authenticati
    ```bash
    # For tests, you can use any test secret - it doesn't need to match Locksmitha
    # The test will use this secret for both creating and validating JWTs
-   export KEYLIN_JWT_SECRET="test_secret"
+   export JWT_SECRET="test_secret"
    ```
 
 > **Note:** In tests, the JWT secret doesn't need to match the one used by Locksmitha. This is because:
@@ -21,7 +21,7 @@ When writing integration tests for services that use Locksmitha for authenticati
 > - The same test secret is used for both creating and validating JWTs
 > - This allows tests to run independently and reliably without external dependencies
 >
-> In production, however, the `KEYLIN_JWT_SECRET` must match the one used by Locksmitha.
+> In production, however, the `JWT_SECRET` must match the one used by Locksmitha.
 
 ### 2. **Writing Tests**
 
@@ -35,7 +35,7 @@ When writing integration tests for services that use Locksmitha for authenticati
    test_email = "test@example.com"
 
    # Create a JWT for this user
-   # This will use the test secret from KEYLIN_JWT_SECRET
+   # This will use the test secret from JWT_SECRET
    jwt = create_jwt_for_user(test_user_id, test_email)
    ```
 
@@ -121,7 +121,7 @@ Always test these scenarios in your integration tests:
    - Update Locksmitha to use new secret
 
 3. **Update Environment Variables**
-   - Update `KEYLIN_JWT_SECRET` in all services
+   - Update `JWT_SECRET` in all services
    - Ensure all services are updated within grace period
 
 ### 3. **Best Practices**

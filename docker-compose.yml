@@ -2,9 +2,9 @@ version: '3.8'
 services:
   locksmitha:
     build: .
-    command: uvicorn src.locksmitha.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.locksmitha.main:app --host 0.0.0.0 --port 8001 --reload
     ports:
-      - "8000:8000"
+      - "8001:8001"
     env_file:
       - .env
     depends_on:
