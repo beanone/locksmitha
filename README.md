@@ -102,10 +102,10 @@ locksmitha/
       ```env
       # CRITICAL: This secret must be identical across all services that use Locksmitha
       # for authentication. If they don't match, authentication will fail.
-      KEYLIN_JWT_SECRET=supersecretjwtkey
-      KEYLIN_DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
-      KEYLIN_RESET_PASSWORD_SECRET=supersecretresetkey
-      KEYLIN_VERIFICATION_SECRET=supersecretverifykey
+      JWT_SECRET=supersecretjwtkey
+      DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
+      RESET_PASSWORD_SECRET=supersecretresetkey
+      VERIFICATION_SECRET=supersecretverifykey
       ALLOWED_ORIGINS=http://localhost,http://127.0.0.1
       ```
 
@@ -149,10 +149,10 @@ GRANT ALL PRIVILEGES ON DATABASE keylindb TO locksmitha_user;
 
 ### 2. Configure the Connection String
 
-Set the `KEYLIN_DATABASE_URL` environment variable in your `.env` file:
+Set the `DATABASE_URL` environment variable in your `.env` file:
 
 ```env
-KEYLIN_DATABASE_URL=postgresql+asyncpg://locksmitha_user:your_strong_password@localhost:5432/keylindb
+DATABASE_URL=postgresql+asyncpg://locksmitha_user:your_strong_password@localhost:5432/keylindb
 ```
 
 ### 3. Run Migrations
@@ -164,7 +164,7 @@ KEYLIN_DATABASE_URL=postgresql+asyncpg://locksmitha_user:your_strong_password@lo
 - **Development:** Tables can be created automatically on app startup (see `lifespan` in `main.py`).
 
 ### 4. Development vs. Production
-- **Development:** You may use SQLite for quick local testing by setting `KEYLIN_DATABASE_URL=sqlite+aiosqlite:///./test.db`.
+- **Development:** You may use SQLite for quick local testing by setting `DATABASE_URL=sqlite+aiosqlite:///./test.db`.
 - **Production:** Always use PostgreSQL or another robust RDBMS. Run migrations and use strong, unique credentials.
 
 ### 5. Best Practices
@@ -186,9 +186,9 @@ If the configured database does not exist, Locksmitha will create a new one auto
     ```dockerfile
     COPY ./my_prepopulated.db /app/my_prepopulated.db
     ```
-- Set your `KEYLIN_DATABASE_URL` to point to this file:
+- Set your `DATABASE_URL` to point to this file:
     ```env
-    KEYLIN_DATABASE_URL=sqlite+aiosqlite:///./my_prepopulated.db
+    DATABASE_URL=sqlite+aiosqlite:///./my_prepopulated.db
     ```
 
 #### 2. Mount the Database File or Directory (Recommended)
@@ -202,9 +202,9 @@ If the configured database does not exist, Locksmitha will create a new one auto
 - This allows you to persist data or use a pre-existing database without rebuilding the image.
 
 #### 3. Connect to an Existing Database Instance (Postgres)
-- For Postgres, simply set your `KEYLIN_DATABASE_URL` to point to an existing database instance that already contains user data:
+- For Postgres, simply set your `DATABASE_URL` to point to an existing database instance that already contains user data:
     ```env
-    KEYLIN_DATABASE_URL=postgresql+asyncpg://user:password@host:5432/existing_db
+    DATABASE_URL=postgresql+asyncpg://user:password@host:5432/existing_db
     ```
 - Ensure the user has the necessary privileges and the schema matches the expected structure.
 
@@ -245,7 +245,7 @@ See [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md) for request/res
 To integrate with the Locksmitha login service, configure environment variables correctly according to the [setup section](#setup--usage). Incorrect configuration will cause authentication to fail:
 
 **Common Issues to Avoid:**
-- Using different `KEYLIN_JWT_SECRET` values across services
+- Using different `JWT_SECRET` values across services
 - Using the default secret value in production
 - Incorrect `LOCKSMITHA_URL` that's not accessible from your application
 - Missing or misspelled environment variable names
@@ -278,7 +278,7 @@ To use Locksmitha as your authentication provider in another FastAPI application
 
 ### 2. Use JWTs to Secure Your FastAPI Endpoints
 - Require clients to include the JWT in the `Authorization: Bearer <token>` header for protected endpoints in your service.
-- In your FastAPI app, validate the JWT using the same secret as the login service (from `KEYLIN_JWT_SECRET`).
+- In your FastAPI app, validate the JWT using the same secret as the login service (from `JWT_SECRET`).
 - **Recommended setup:**
     ```python
     import os

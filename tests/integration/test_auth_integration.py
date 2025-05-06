@@ -37,8 +37,8 @@ def isolated_test_db(monkeypatch):
     asyncio.run(seed())
 
     # Set env vars for the test
-    monkeypatch.setenv("KEYLIN_DATABASE_URL", db_url)
-    monkeypatch.setenv("KEYLIN_JWT_SECRET", "test_jwt_secret")
+    monkeypatch.setenv("DATABASE_URL", db_url)
+    monkeypatch.setenv("JWT_SECRET", "test_jwt_secret")
     yield db_url
 
     # Cleanup

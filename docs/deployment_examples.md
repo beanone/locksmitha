@@ -35,10 +35,10 @@ services:
 
 **.env Example:**
 ```env
-KEYLIN_JWT_SECRET=supersecretjwtkey
-KEYLIN_DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
-KEYLIN_RESET_PASSWORD_SECRET=supersecretresetkey
-KEYLIN_VERIFICATION_SECRET=supersecretverifykey
+JWT_SECRET=supersecretjwtkey
+DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
+RESET_PASSWORD_SECRET=supersecretresetkey
+VERIFICATION_SECRET=supersecretverifykey
 ALLOWED_ORIGINS=http://localhost,http://127.0.0.1
 ```
 
@@ -65,7 +65,7 @@ docker run --env-file .env -p 8000:8000 locksmitha
 - Configure your `.env` with the Postgres connection string:
 
 ```env
-KEYLIN_DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
+DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
 ```
 
 - With Docker Compose, the database is managed as a separate service (see above).
@@ -79,7 +79,7 @@ KEYLIN_DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
 
 - Set in `.env`:
   ```env
-  KEYLIN_DATABASE_URL=sqlite+aiosqlite:///./test.db
+  DATABASE_URL=sqlite+aiosqlite:///./test.db
   ```
 - The database will be created inside the container and lost when the container is removed.
 
@@ -90,7 +90,7 @@ KEYLIN_DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
 ```bash
 docker run --env-file .env \
   -v /path/on/host/my_prepopulated.db:/app/my_prepopulated.db \
-  -e KEYLIN_DATABASE_URL=sqlite+aiosqlite:///./my_prepopulated.db \
+  -e DATABASE_URL=sqlite+aiosqlite:///./my_prepopulated.db \
   -p 8000:8000 locksmitha
 ```
 
@@ -103,7 +103,7 @@ docker run --env-file .env \
 You can override any variable from `.env` by passing `-e` flags:
 
 ```bash
-docker run --env-file .env -e KEYLIN_JWT_SECRET=anothersecret -p 8000:8000 locksmitha
+docker run --env-file .env -e JWT_SECRET=anothersecret -p 8000:8000 locksmitha
 ```
 
 ---
@@ -156,7 +156,7 @@ docker run --env-file myapp/.env -p 9000:9000 myapp
 ```
 
 **Important:**
-- The value of `KEYLIN_JWT_SECRET` must be identical in both `.env` files for JWT authentication to work.
+- The value of `JWT_SECRET` must be identical in both `.env` files for JWT authentication to work.
 - Do **not** share the entire `.env` file between services—only copy the necessary variables.
 - Each service should only have the environment variables it needs for security and clarity.
 

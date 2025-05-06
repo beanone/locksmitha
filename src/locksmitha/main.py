@@ -6,11 +6,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from keylin.auth import auth_backend, fastapi_users
+from keylin.config import settings
 from keylin.models import Base
 from keylin.schemas import UserCreate, UserRead
 from sqlalchemy.ext.asyncio import create_async_engine
-
-from locksmitha.config import settings
 
 logging.basicConfig(
     level=logging.INFO,

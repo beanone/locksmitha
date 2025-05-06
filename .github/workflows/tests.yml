@@ -33,17 +33,22 @@ jobs:
           pip install dist/*.whl
           pip install -r requirements-test.txt
 
+      - name: Set required env vars
+        run: |
+          echo "JWT_SECRET=supersecretresetkey" >> $GITHUB_ENV
+          echo "RESET_PASSWORD_SECRET=supersecretresetkey" >> $GITHUB_ENV
+          echo "VERIFICATION_SECRET=supersecretresetkey" >> $GITHUB_ENV
+          echo "DATABASE_URL=sqlite+aiosqlite:///./test.db" >> $GITHUB_ENV
+          echo "ALLOWED_ORIGINS=[\"http://localhost:8000\"]" >> $GITHUB_ENV
+
+
       - name: Run unit tests
         run: |
           pytest tests/unit -v --cov=src/locksmitha --cov-branch --cov-report=xml
-        env:
-          KEYLIN_JWT_SECRET: "changeme"
 
       - name: Run integration tests
         run: |
           pytest tests/integration -v --cov=src/locksmitha --cov-branch --cov-report=xml --cov-append
-        env:
-          KEYLIN_JWT_SECRET: "changeme"
 
       - name: Upload coverage
         uses: codecov/codecov-action@v5
