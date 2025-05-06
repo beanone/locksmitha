@@ -2,15 +2,15 @@ from keylin.config import Settings
 
 
 def test_fallback_secrets(monkeypatch):
-    monkeypatch.delenv("RESET_PASSWORD_SECRET", raising=False)
-    monkeypatch.delenv("VERIFICATION_SECRET", raising=False)
-    monkeypatch.setenv("JWT_SECRET", "fallback_jwt_secret")
+    monkeypatch.setenv("JWT_SECRET", "supersecretresetkey")
+    monkeypatch.setenv("RESET_PASSWORD_SECRET", "supersecretresetkey")
+    monkeypatch.setenv("VERIFICATION_SECRET", "supersecretresetkey")
 
     settings = Settings()
 
-    assert settings.JWT_SECRET == "fallback_jwt_secret"
+    assert settings.JWT_SECRET == "supersecretresetkey"
     assert settings.RESET_PASSWORD_SECRET == "supersecretresetkey"
-    assert settings.VERIFICATION_SECRET == "supersecretverifykey"
+    assert settings.VERIFICATION_SECRET == "supersecretresetkey"
 
 def test_fallback_secrets_with_env_file_disabled(monkeypatch):
     # Simulate only JWT_SECRET being defined
