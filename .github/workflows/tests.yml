@@ -33,6 +33,12 @@ jobs:
           pip install dist/*.whl
           pip install -r requirements-test.txt
 
+      - name: Set required env vars
+        run: |
+          echo "JWT_SECRET=test_jwt_secret" >> $GITHUB_ENV
+          echo "DATABASE_URL=sqlite+aiosqlite:///./test.db" >> $GITHUB_ENV
+          echo "ALLOWED_ORIGINS=[\"http://localhost:8000\"]" >> $GITHUB_ENV
+
       - name: Run unit tests
         run: |
           pytest tests/unit -v --cov=src/locksmitha --cov-branch --cov-report=xml
