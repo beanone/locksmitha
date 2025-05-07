@@ -1,11 +1,14 @@
 version: '3.8'
 services:
   locksmitha:
-    image: hongyanworkshop123/locksmitha:latest
+    build: .
+    command: uvicorn src.locksmitha.main:app --host 0.0.0.0 --port 8001 --reload
     ports:
       - "8001:8001"
     env_file:
       - .env
+    volumes:
+      - ./src:/app/src  # Mount source code for live reload
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s
@@ -40,7 +43,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data  # Persist database data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -63,7 +66,7 @@ services:
       - app_network
 
 volumes:
-  postgres_data:
+  postgres_data:  # Define named volume for database persistence
 
 networks:
   app_network:

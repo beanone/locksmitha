@@ -1,15 +1,24 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
+
+LABEL maintainer="Beanone Team <beanone@example.com>"
+LABEL description="Locksmitha Authentication Service"
+LABEL version="1.0.0"
 
 WORKDIR /app
 
-COPY pyproject.toml ./
-COPY requirements-test.txt ./
+# Copy only requirements first to leverage cache
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Then copy application code
 COPY src/ src/
-RUN pip install --upgrade pip setuptools
-RUN pip install hatch hatchling
-RUN hatch build && pip install dist/*.whl
-RUN pip install -r requirements-test.txt
 
-COPY . .
+# Add non-root user
+RUN adduser --disabled-password --gecos "" appuser
+USER appuser
 
-CMD ["uvicorn", "src.locksmitha.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Add health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8001/health || exit 1
+
+CMD ["uvicorn", "src.locksmitha.main:app", "--host", "0.0.0.0", "--port", "8001"]

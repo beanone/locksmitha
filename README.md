@@ -1,3 +1,5 @@
+# Locksmitha
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/beanone/locksmitha/refs/heads/main/docs/assets/logos/locksmitha.svg" alt="Locksmitha Login Service" width="100%">
 </p>
@@ -15,10 +17,13 @@
 - [Overview & Architecture](#overview--architecture)
 - [Project Structure](#project-structure)
 - [Setup & Usage](#setup--usage)
-- [Database Setup](#database-setup)
-- [Endpoints & Behavior](#endpoints--behavior)
-- [Integrating Your FastAPI Service with the Login Service](#integrating-your-fastapi-service-with-the-login-service)
-- [Integration Testing](#integration-testing)
+- [Environment Variables](#environment-variables)
+- [Docker Configuration](#docker-configuration)
+- [API Endpoints](#api-endpoints)
+- [Health Checks](#health-checks)
+- [Logging](#logging)
+- [Security Features](#security-features)
+- [Development](#development)
 - [CI/CD](#cicd)
 - [License](#license)
 
@@ -72,7 +77,9 @@ locksmitha/
 ├── tests/
 ├── Dockerfile
 ├── docker-compose.yml
+├── docker-compose.dev.yml
 ├── pyproject.toml
+├── requirements.txt
 ├── requirements-test.txt
 ├── .pre-commit-config.yaml
 ├── .dockerignore
@@ -85,139 +92,111 @@ locksmitha/
 
 ## Setup & Usage
 
-1. **Create and activate a virtual environment:**
-    ```bash
-    python -m venv .venv
-    source .venv/bin/activate
-    ```
-2. **Install dependencies:**
-    ```bash
-    pip install hatch
-    hatch build
-    pip install dist/*.whl
-    pip install -r requirements-test.txt
-    ```
-3. **Configure environment variables:**
-    - Create a `.env` file in the project root with the following variables:
-      ```env
-      # CRITICAL: This secret must be identical across all services that use Locksmitha
-      # for authentication. If they don't match, authentication will fail.
-      JWT_SECRET=supersecretjwtkey
-      DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
-      RESET_PASSWORD_SECRET=supersecretresetkey
-      VERIFICATION_SECRET=supersecretverifykey
-      ALLOWED_ORIGINS=http://localhost,http://127.0.0.1
-      ```
+### Using Docker (Recommended)
 
-4. **Run the service:**
-    ```bash
-    docker-compose up --build
-    # or
-    uvicorn src.locksmitha.main:app --reload
-    ```
+1. **Create a `.env` file**:
+   ```bash
+   cp env.sample .env
+   # Edit .env with your configuration
+   ```
 
-5. **Testing:**
-    ```bash
-    pytest
-    ```
+2. **Run with Docker Compose**:
+   ```bash
+   # For production
+   docker-compose up
 
-6. **Linting:**
-    ```bash
-    pre-commit run --all-files
-    ```
+   # For development (with live reload)
+   docker-compose -f docker-compose.dev.yml up --build
+   ```
 
----
+The service will be available at `http://localhost:8001`.
 
-## Database Setup
+### Manual Setup
 
-Locksmitha uses PostgreSQL as its primary database. You must have a running Postgres instance before starting the service.
+1. **Create and activate a virtual environment**:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
 
-### 1. Create the Database (Postgres Example)
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-If you have Docker Compose set up, the database will be created automatically. For manual/local setup:
+3. **Configure environment variables**:
+   ```bash
+   cp env.sample .env
+   # Edit .env with your configuration
+   ```
 
-```bash
-# Start Postgres (if not using Docker)
-sudo service postgresql start
+4. **Run the service**:
+   ```bash
+   uvicorn src.locksmitha.main:app --reload
+   ```
 
-# Create a database and user
-psql -U postgres
-CREATE DATABASE keylindb;
-CREATE USER locksmitha_user WITH PASSWORD 'your_strong_password';
-GRANT ALL PRIVILEGES ON DATABASE keylindb TO locksmitha_user;
-```
+## Environment Variables
 
-### 2. Configure the Connection String
-
-Set the `DATABASE_URL` environment variable in your `.env` file:
+Create a `.env` file with the following variables:
 
 ```env
-DATABASE_URL=postgresql+asyncpg://locksmitha_user:your_strong_password@localhost:5432/keylindb
+# Authentication Secrets
+JWT_SECRET=your_jwt_secret
+RESET_PASSWORD_SECRET=your_reset_secret
+VERIFICATION_SECRET=your_verification_secret
+
+# Database Configuration
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password
+POSTGRES_DB=keylindb
+DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+
+# CORS Settings
+ALLOWED_ORIGINS=["http://localhost:8001", "http://127.0.0.1:8001"]
+
+# Optional Settings
+# LOG_LEVEL=INFO
 ```
 
-### 3. Run Migrations
+## Docker Configuration
 
-- **Production:** Use Alembic for schema migrations:
-    ```bash
-    alembic upgrade head
-    ```
-- **Development:** Tables can be created automatically on app startup (see `lifespan` in `main.py`).
+### Production
 
-### 4. Development vs. Production
-- **Development:** You may use SQLite for quick local testing by setting `DATABASE_URL=sqlite+aiosqlite:///./test.db`.
-- **Production:** Always use PostgreSQL or another robust RDBMS. Run migrations and use strong, unique credentials.
+The production setup uses:
+- Published Docker image
+- Health checks for both app and database
+- Resource limits for stability
+- Log rotation
+- Isolated network
+- Persistent database volume
 
-### 5. Best Practices
-- Use strong, unique passwords for database users.
-- Restrict database network access to trusted hosts/services only.
-- Always use migrations (Alembic) to manage schema changes.
-- Regularly back up your database.
-- Never run your application or database as a superuser.
-- Rotate credentials and secrets periodically.
+```bash
+docker-compose up
+```
 
-For more details, see the [keylin documentation](https://github.com/beanone/keylin) and your database provider's security guides.
+### Development
 
-### Using a Pre-Existing Database
+The development setup includes:
+- Local source code mounting for live reload
+- Development-specific uvicorn settings
+- Same health checks and resource limits as production
+- Persistent database volume
 
-If the configured database does not exist, Locksmitha will create a new one automatically (for example, by running migrations or creating tables on startup). However, if you want to use a database that already contains user data, you have several options:
+```bash
+docker-compose -f docker-compose.dev.yml up --build
+```
 
-#### 1. Package the Database with Your Docker Image (SQLite)
-- For SQLite, you can copy your pre-populated `.db` file into the Docker image:
-    ```dockerfile
-    COPY ./my_prepopulated.db /app/my_prepopulated.db
-    ```
-- Set your `DATABASE_URL` to point to this file:
-    ```env
-    DATABASE_URL=sqlite+aiosqlite:///./my_prepopulated.db
-    ```
+### Resource Limits
 
-#### 2. Mount the Database File or Directory (Recommended)
-- For both SQLite and Postgres, you can mount a host directory or file into the container using Docker volumes:
-    ```bash
-    # For SQLite
-    docker run -v /path/on/host/my_prepopulated.db:/app/my_prepopulated.db ...
-    # For Postgres (mounting data directory, advanced)
-    docker run -v /path/on/host/pgdata:/var/lib/postgresql/data ...
-    ```
-- This allows you to persist data or use a pre-existing database without rebuilding the image.
+- **Application Container**:
+  - CPU: 0.5 cores max, 0.25 cores reserved
+  - Memory: 512MB max, 256MB reserved
 
-#### 3. Connect to an Existing Database Instance (Postgres)
-- For Postgres, simply set your `DATABASE_URL` to point to an existing database instance that already contains user data:
-    ```env
-    DATABASE_URL=postgresql+asyncpg://user:password@host:5432/existing_db
-    ```
-- Ensure the user has the necessary privileges and the schema matches the expected structure.
+- **Database Container**:
+  - CPU: 1.0 cores max, 0.5 cores reserved
+  - Memory: 1GB max, 512MB reserved
 
-#### 4. Permissions and Security
-- When mounting or packaging databases, ensure the container has the correct file permissions to read/write the database.
-- Never expose sensitive database files or credentials in public images or repositories.
-- For production, prefer connecting to managed/external databases and use secure credentials.
-
-For more details on Docker volumes, see the [Docker documentation](https://docs.docker.com/storage/volumes/). For database schema requirements, see the [keylin documentation](https://github.com/beanone/keylin).
-
----
-
-## Endpoints & Behavior
+## API Endpoints
 
 | Endpoint                | Method | Auth Required | Description                        |
 |------------------------|--------|--------------|------------------------------------|
@@ -230,112 +209,85 @@ For more details on Docker volumes, see the [Docker documentation](https://docs.
 | `/auth/verify`         | POST   | No           | Email verification (if enabled)    |
 | `/health`              | GET    | No           | Health check endpoint              |
 
-- **Registration and login are open to all.**
-- **User info and user listing require authentication (and admin for listing).**
-- **Password reset and verification are optional, depending on config.**
+## Health Checks
 
-- **Note:** The `/users/` endpoint is currently accessible to all authenticated users. Restriction to users with the "admin" role is planned for a future release, once role-based access control is implemented.
+The service includes health checks for both the application and database:
 
-See [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md) for request/response examples and integration details.
+- **Application Health Check**:
+  - Endpoint: `/health`
+  - Interval: 30s
+  - Timeout: 10s
+  - Retries: 3
+  - Start Period: 40s
 
----
+- **Database Health Check**:
+  - Command: `pg_isready`
+  - Interval: 10s
+  - Timeout: 5s
+  - Retries: 5
 
-## Environment Variables for Authentication Integration
+## Logging
 
-To integrate with the Locksmitha login service, configure environment variables correctly according to the [setup section](#setup--usage). Incorrect configuration will cause authentication to fail:
+Logs are configured with rotation:
+- Maximum size: 10MB
+- Maximum files: 3
+- Format: JSON
 
-**Common Issues to Avoid:**
-- Using different `JWT_SECRET` values across services
-- Using the default secret value in production
-- Incorrect `LOCKSMITHA_URL` that's not accessible from your application
-- Missing or misspelled environment variable names
+## Security Features
 
-**Best Practices:**
-1. Use a secrets manager in production
-2. Rotate secrets regularly
-3. Use different secrets for development, testing, and production
-4. Never commit secrets to version control
-5. Validate environment variables at application startup
+- Non-root user in container
+- Resource limits to prevent DoS
+- Health checks for reliability
+- Isolated network
+- Environment variable based configuration
+- JWT-based authentication
+- Password hashing with Argon2
 
----
+## Development
 
-## Integrating Your FastAPI Service with the Login Service
+### Running Tests
 
-To use Locksmitha as your authentication provider in another FastAPI application, follow these steps:
+```bash
+# Run all tests
+pytest
 
-### 1. Authenticate Users via the Login Service
-- Direct your frontend or API clients to the login service's `/auth/jwt/login` endpoint to obtain a JWT access token.
-- Example request:
-    ```http
-    POST ${LOCKSMITHA_URL}/auth/jwt/login
-    Content-Type: application/json
-    {
-      "username": "user@example.com",
-      "password": "yourpassword"
-    }
-    ```
-- The response will include an `access_token` (JWT) and `token_type`.
-
-### 2. Use JWTs to Secure Your FastAPI Endpoints
-- Require clients to include the JWT in the `Authorization: Bearer <token>` header for protected endpoints in your service.
-- In your FastAPI app, validate the JWT using the same secret as the login service (from `JWT_SECRET`).
-- **Recommended setup:**
-    ```python
-    import os
-    from fastapi.security import OAuth2PasswordBearer
-
-    LOCKSMITHA_URL = os.getenv("LOCKSMITHA_URL", "http://localhost:8001")
-    oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{LOCKSMITHA_URL}/auth/jwt/login")
-    # ... rest of your authentication dependency ...
-    ```
-
-### 3. Integration Options
-- **In-Service Integration:**
-  - Use the authentication dependency (`Depends(get_current_user)`) directly in your FastAPI endpoints.
-  - Best for microservices or when you control the FastAPI codebase.
-- **Out-of-Service Integration:**
-  - Use an API gateway, reverse proxy, or external middleware to validate JWTs before requests reach your FastAPI app.
-  - Best for legacy services, polyglot environments, or when you want to centralize auth logic.
-- Choose the approach that best fits your deployment and security requirements (see [Deployment Examples](./docs/deployment_examples.md))
-
-### 4. Fetch User Info
-- To get user details, call the login service's `/users/me` endpoint with the JWT:
-    ```http
-    GET ${LOCKSMITHA_URL}/users/me
-    Authorization: Bearer <access_token>
-    ```
-
-### 5. Environment and Configuration
-- Ensure your service has access to the login service's JWT secret (or public key if using asymmetric JWTs).
-- Set CORS and network rules to allow communication between your service and the login service.
-- Do **not** implement your own registration or password reset; delegate these to the login service endpoints.
-
-### 6. Example Architecture
-```
-[Client] ──> [Your FastAPI Service] ──> [Locksmitha Login Service]
-   |                |                        |
-   |  (JWT Bearer)  |  (JWT validation)      |
-   |                |                        |
-   └───────────────>┴────────────────────────┘
+# Run specific test categories
+pytest tests/unit
+pytest tests/integration
 ```
 
-For more advanced integration (e.g., OAuth2, SSO, or custom claims), refer to the [API_UI_INTEGRATION_GUIDE.md](./API_UI_INTEGRATION_GUIDE.md), [fastapi-users documentation](https://fastapi-users.github.io/fastapi-users/), and [keylin documentation](https://github.com/beanone/keylin).
+### Code Quality
 
-## Integration Testing
+```bash
+# Run linter
+ruff check .
 
-For detailed instructions on how to write integration tests for services that use Locksmitha for authentication, see [INTEGRATION_TESTING.md](./INTEGRATION_TESTING.md).
-
----
+# Run formatter
+ruff format .
+```
 
 ## CI/CD
 
-Locksmitha uses GitHub Actions for CI/CD. The workflow includes:
-- Unit tests
-- Code coverage
-- Security scan
-- Docker image build and push
+Locksmitha uses GitHub Actions for continuous integration and deployment:
 
----
+### Workflows
+
+1. **Tests** (`tests.yml`):
+   - Runs unit and integration tests
+   - Collects and uploads coverage reports
+   - Triggers on push to main and pull requests
+
+2. **Docker Publish** (`docker-publish.yml`):
+   - Builds and publishes Docker images
+   - Includes security scanning
+   - Triggers on push to main
+
+### Quality Gates
+
+- All tests must pass
+- Code coverage must meet minimum thresholds
+- Security scans must pass
+- Code must pass linting checks
 
 ## License
 
