@@ -10,6 +10,7 @@ from keylin.models import Base
 from keylin.schemas import UserCreate, UserRead
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from . import apikey
 from .config import Settings
 
 logging.basicConfig(
@@ -57,6 +58,7 @@ def create_app() -> FastAPI:
         prefix="/users",
         tags=["users"],
     )
+    app.include_router(apikey.router)
 
     @app.get("/health", tags=["health"])
     def health_check() -> dict[str, str]:
