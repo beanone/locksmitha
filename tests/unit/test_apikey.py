@@ -42,7 +42,7 @@ def fake_api_key_instance():
     )
 
 @pytest.mark.anyio
-@patch("src.locksmitha.apikey.create_api_key_record")
+@patch("keylin.apikey_manager.create_api_key_record")
 async def test_create_api_key(mock_create_api_key_record,
                               fake_user, fake_api_key_instance):
     app.dependency_overrides[current_active_user] = lambda: fake_user
