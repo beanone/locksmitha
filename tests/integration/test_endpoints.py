@@ -1,12 +1,12 @@
 import os
 import tempfile
 
-import pytest_asyncio
+import pytest
 from fastapi.testclient import TestClient
 
 
-@pytest_asyncio.fixture(scope="function")
-async def isolated_test_db(monkeypatch):
+@pytest.mark.asyncio
+async def test_with_isolated_db(monkeypatch):
     # Create a temporary file for the DB
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tf:
         db_path = tf.name
@@ -19,27 +19,27 @@ async def isolated_test_db(monkeypatch):
         from src.locksmitha.main import create_app
 
         test_app = create_app()
-        client = TestClient(test_app)
+        with TestClient(test_app) as client:
+            # Test health endpoint
+            response = client.get("/health")
+            assert response.status_code == 200
+            assert response.json() == {"status": "ok"}
 
-        # Test health endpoint
-        response = client.get("/health")
-        assert response.status_code == 200
-        assert response.json() == {"status": "ok"}
+            # Test register endpoint
+            response = client.post("/auth/register",
+                                   json={"email": "test@test.com", "password": "test"})
+            assert response.status_code == 201
 
-        # Test register endpoint
-        response = client.post("/auth/register",
-                               json={"email": "test@test.com", "password": "test"})
-        assert response.status_code == 201
+            # Test login endpoint
+            response = client.post("/auth/jwt/login",
+                                   data={"username": "test@test.com",
+                                         "password": "test"})
+            assert response.status_code == 200
+            token = response.json()["access_token"]
 
-        # Test login endpoint
-        response = client.post("/auth/jwt/login",
-                               json={"username": "test@test.com", "password": "test"})
-        assert response.status_code == 200
-        token = response.json()["access_token"]
-
-        # Test users/me endpoint
-        response = client.get("/users/me",
-                              headers={"Authorization": f"Bearer {token}"})
-        assert response.status_code == 200
+            # Test users/me endpoint
+            response = client.get("/users/me",
+                                  headers={"Authorization": f"Bearer {token}"})
+            assert response.status_code == 200
 
         os.remove(db_path)
