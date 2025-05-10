@@ -1,11 +1,12 @@
 """Main FastAPI application for login service using keylin and fastapi-users."""
 
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from keylin import db
 from keylin.auth import auth_backend, fastapi_users
-from keylin.db import lifespan
 from keylin.schemas import UserCreate, UserRead
 
 from . import apikey
@@ -20,6 +21,11 @@ logging.basicConfig(
 def create_app() -> FastAPI:
     """App factory for FastAPI application."""
     settings = Settings()
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        # Automatically create tables if they do not exist (dev/CI only)
+        async with db.lifespan():
+            yield
 
     app = FastAPI(title="Keylin Login Service", version="1.0.0", lifespan=lifespan)
 
