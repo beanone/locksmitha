@@ -15,6 +15,9 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from keylin.db import get_user_db
 from keylin.models import User
 
+from .config import Settings
+from .email_utils import send_email
+
 logger = logging.getLogger("locksmitha.auth")
 
 
@@ -25,6 +28,8 @@ class UserManager(BaseUserManager[User, int]):
     user lifecycle events. It uses secrets loaded from environment variables for
     password reset and email verification tokens, ensuring security and configurability.
     """
+    settings = Settings()
+
     async def on_after_login(self, user: User, request: Request = None) -> None:
         """Called after a successful user login.
 
@@ -50,7 +55,12 @@ class UserManager(BaseUserManager[User, int]):
         link is constructed using the frontend URL and the token. This flow is
         essential for account recovery and must be secure to prevent abuse.
         """
-        logger.info(f"Password reset requested: id={user.id}")
+        reset_link = f"{self.settings.frontend_url}/reset-password?token={token}"
+        send_email(
+            to_email=user.email,
+            subject="Password Reset",
+            body=f"Click the link to reset your password: {reset_link}"
+        )
 
 
     async def on_after_request_verify(self, user: User, token: str,
@@ -61,7 +71,12 @@ class UserManager(BaseUserManager[User, int]):
         link is constructed using the frontend URL and the token. Email verification
         is important to confirm user ownership and prevent spam or abuse.
         """
-        logger.info(f"Verification requested: id={user.id}")
+        verify_link = f"{self.settings.frontend_url}/verify-email?token={token}"
+        send_email(
+            to_email=user.email,
+            subject="Verify Your Email",
+            body=f"Click the link to verify your email: {verify_link}"
+        )
 
     # Additional hooks and business logic can be added here as needed.
 

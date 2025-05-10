@@ -240,13 +240,13 @@ For advanced deployment scenarios, see [docs/deployment_examples.md](docs/deploy
 
 | Endpoint                  | Method | Auth Required | Description                              |
 |--------------------------|--------|--------------|------------------------------------------|
-| `/auth/jwt/login`        | POST   | No           | User login (returns JWT)                 |
+| `/auth/jwt/login`        | POST   | No           | User login (returns JWT; **requires `application/x-www-form-urlencoded` with `username` and `password` fields**) |
 | `/auth/register`         | POST   | No           | User registration                        |
 | `/users/me`              | GET    | Yes          | Get current user info                    |
-| `/users/`                | GET    | Yes (admin)  | List users (admin only)                  |
-| `/auth/forgot-password`  | POST   | No           | Request password reset (if enabled)      |
-| `/auth/reset-password`   | POST   | No           | Reset password (if enabled)              |
-| `/auth/verify`           | POST   | No           | Email verification (if enabled)          |
+| `/users/`                | GET    | Yes (admin)  | List users (**admin only; user must have `is_superuser: true`**) |
+| `/auth/forgot-password`  | POST   | No           | Request password reset (**if enabled**)  |
+| `/auth/reset-password`   | POST   | No           | Reset password (**if enabled**)          |
+| `/auth/verify`           | POST   | No           | Email verification (**if enabled**)      |
 | `/api-keys/`             | POST   | Yes          | Create a new API key                     |
 | `/api-keys/`             | GET    | Yes          | List all API keys for the user           |
 | `/api-keys/{key_id}`     | DELETE | Yes          | Delete (revoke) an API key by ID         |
