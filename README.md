@@ -4,6 +4,7 @@
   <img src="https://raw.githubusercontent.com/beanone/locksmitha/refs/heads/main/docs/assets/logos/locksmitha.svg" alt="Locksmitha Login Service" width="100%">
 </p>
 
+[![GitHub release](https://img.shields.io/github/v/release/beanone/locksmitha?include_prereleases&sort=semver)](https://github.com/beanone/locksmitha/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/beanone/locksmitha/blob/main/LICENSE)
 [![Tests](https://github.com/beanone/locksmitha/actions/workflows/tests.yml/badge.svg)](https://github.com/beanone/locksmitha/actions?query=workflow%3Atests)
 [![Coverage](https://codecov.io/gh/beanone/locksmitha/branch/main/graph/badge.svg)](https://codecov.io/gh/beanone/locksmitha)
@@ -15,11 +16,14 @@
 ## Table of Contents
 
 - [Overview & Architecture](#overview--architecture)
+- [Requirements](#requirements)
 - [Project Structure](#project-structure)
 - [Setup & Usage](#setup--usage)
 - [Environment Variables](#environment-variables)
 - [Docker Configuration](#docker-configuration)
 - [API Endpoints](#api-endpoints)
+- [API Documentation](#api-documentation)
+- [Postman Collection](#postman-collection)
 - [Health Checks](#health-checks)
 - [Logging](#logging)
 - [Security Features](#security-features)
@@ -38,30 +42,45 @@ Locksmitha implements a secure, extensible authentication and user management se
 - User registration, login, and profile endpoints
 - Password reset and email verification (if enabled)
 - Security-compliant logging and rate limiting
-- Ready for RBAC/permission extension
+- **RBAC (Role-Based Access Control) is not yet implemented, but is planned for a future release.**
 - Dockerized and CI/CD ready
 
 ### Architecture Diagram
 ```mermaid
-graph TD
-    %% Out-of-scope (future) components use dashed borders and gray color
-    style UI stroke-dasharray: 5 5,stroke:#bbb,fill:#f9f9f9
-    style APP stroke-dasharray: 5 5,stroke:#bbb,fill:#f9f9f9
+flowchart LR
+    %% High-contrast, clear, and accessible
 
-    subgraph User Management UI [User Management UI]
-        UI[User Management UI]
+    subgraph UI["User Management UI"]
+        U[User]
     end
-    subgraph Application Service [Application Service]
-        APP[App Service]
+
+    subgraph APP["Application Service"]
+        AP[App Service]
     end
-    subgraph Locksmitha Login Service
+
+    subgraph LS["Locksmitha Login Service"]
         A[FastAPI + keylin]
         DB[(Postgres DB)]
     end
-    UI -- REST/JSON --> A
-    APP -- REST/JSON --> A
-    A -- SQLAlchemy/asyncpg --> DB
+
+    U -- "REST/JSON" --> A
+    AP -- "REST/JSON" --> A
+    A -- "SQLAlchemy/asyncpg" --> DB
+
+    %% Styling for maximum clarity
+    classDef main fill:#fff,stroke:#222,stroke-width:2px,color:#111,font-weight:bold;
+    classDef db fill:#e0e7ff,stroke:#222,stroke-width:2px,color:#111,font-weight:bold;
+    class A,AP,U main;
+    class DB db;
 ```
+
+---
+
+## Requirements
+
+- **Python:** 3.12 (tested). Lower versions (>=3.10) may work but are not guaranteed.
+- **Build:** Uses [hatchling](https://hatch.pypa.io/) for packaging.
+- **Development dependencies:** Install with `pip install -r requirements-test.txt`.
 
 ---
 
@@ -103,10 +122,11 @@ locksmitha/
 2. **Run with Docker Compose**:
    ```bash
    # For production
-   docker-compose up
+   docker-compose up --build --no-cache
 
    # For development (with live reload)
-   docker-compose -f docker-compose.dev.yml up --build
+   docker-compose -f docker-compose.dev.yml build --no-cache
+   docker-compose -f docker-compose.dev.yml up
    ```
 
 The service will be available at `http://localhost:8001`.
@@ -155,10 +175,19 @@ DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/
 ALLOWED_ORIGINS=["http://localhost:8001", "http://127.0.0.1:8001"]
 
 # Optional Settings
-# LOG_LEVEL=INFO
+LOG_LEVEL=INFO
 ```
 
 ## Docker Configuration
+
+> **Note:**
+> - The production configuration (`docker-compose.yml`) uses a pre-built image and is intended for stable deployments.
+> - The development configuration (`docker-compose.dev.yml`) builds the image locally, enables live reload with Uvicorn, and mounts your local `./src` directory into the container for instant code changes.
+> - All other settings (database, resource limits, logging, health checks, network) are the same in both files.
+
+> **Tip:** Use the development configuration for local development and testing, and the production configuration for deployments.
+
+> **Also:** To avoid stale library issues, always use `docker-compose build --no-cache` (or the equivalent dev command) after updating dependencies.
 
 ### Production
 
@@ -183,7 +212,8 @@ The development setup includes:
 - Persistent database volume
 
 ```bash
-docker-compose -f docker-compose.dev.yml up --build
+docker-compose -f docker-compose.dev.yml --build --no-cache
+docker-compose -f docker-compose.dev.yml up
 ```
 
 ### Resource Limits
@@ -196,18 +226,89 @@ docker-compose -f docker-compose.dev.yml up --build
   - CPU: 1.0 cores max, 0.5 cores reserved
   - Memory: 1GB max, 512MB reserved
 
+### Advanced Deployment
+
+For advanced deployment scenarios, see [docs/deployment_examples.md](docs/deployment_examples.md) for:
+- Using different databases (Postgres, SQLite)
+- Environment variable management
+- Running multiple services
+- Best practices for production and development
+
+---
+
 ## API Endpoints
 
-| Endpoint                | Method | Auth Required | Description                        |
-|------------------------|--------|--------------|------------------------------------|
-| `/auth/jwt/login`      | POST   | No           | User login (returns JWT)           |
-| `/auth/register`       | POST   | No           | User registration                  |
-| `/users/me`            | GET    | Yes          | Get current user info              |
-| `/users/`              | GET    | Yes (admin)  | List users (admin only)            |
-| `/auth/forgot-password`| POST   | No           | Request password reset (if enabled)|
-| `/auth/reset-password` | POST   | No           | Reset password (if enabled)        |
-| `/auth/verify`         | POST   | No           | Email verification (if enabled)    |
-| `/health`              | GET    | No           | Health check endpoint              |
+| Endpoint                  | Method | Auth Required | Description                              |
+|--------------------------|--------|--------------|------------------------------------------|
+| `/auth/jwt/login`        | POST   | No           | User login (returns JWT)                 |
+| `/auth/register`         | POST   | No           | User registration                        |
+| `/users/me`              | GET    | Yes          | Get current user info                    |
+| `/users/`                | GET    | Yes (admin)  | List users (admin only)                  |
+| `/auth/forgot-password`  | POST   | No           | Request password reset (if enabled)      |
+| `/auth/reset-password`   | POST   | No           | Reset password (if enabled)              |
+| `/auth/verify`           | POST   | No           | Email verification (if enabled)          |
+| `/api-keys/`             | POST   | Yes          | Create a new API key                     |
+| `/api-keys/`             | GET    | Yes          | List all API keys for the user           |
+| `/api-keys/{key_id}`     | DELETE | Yes          | Delete (revoke) an API key by ID         |
+| `/health`                | GET    | No           | Health check endpoint                    |
+
+**API Key Management:**
+- To use API key endpoints, authenticate as a user, then:
+  - `POST /api-keys/` to create a new API key (provide `service_id`, optional `name` and `expires_at`).
+  - `GET /api-keys/` to list your API keys.
+  - `DELETE /api-keys/{key_id}` to revoke an API key.
+
+## API Documentation
+
+- **Interactive API docs** are available at [`/docs`](http://localhost:8001/docs) (Swagger UI) and [`/redoc`](http://localhost:8001/redoc) when the service is running.
+- **Typical flow:**
+  1. Register or log in to obtain a JWT.
+  2. Use the JWT as a Bearer token for authenticated endpoints (e.g., `/users/me`, `/api-keys/`).
+  3. Explore and test endpoints directly in the Swagger UI.
+
+## Postman Collection
+
+A ready-to-use Postman collection is provided for testing and exploring the Locksmitha API.
+
+- **Location:** `tests/postman/locksmitha.postman_collection.json`
+- **Endpoints covered:**
+  - Health check (`/health`)
+  - Register user (`/auth/register`)
+  - Login user (`/auth/jwt/login`)
+  - Get current user info (`/users/me`)
+  - **Create API Key** (`/api-keys/`)
+  - **List API Keys** (`/api-keys/`)
+  - **Delete API Key** (`/api-keys/{api_key_id}`)
+
+### How to Use
+
+1. **Import the Collection:**
+   - Open Postman.
+   - Click `Import` and select `tests/postman/locksmitha.postman_collection.json`.
+
+2. **Set the `base_url` Variable:**
+   - The collection uses a `base_url` variable (default: `http://localhost:8001`).
+   - To test against a different host/port, edit the `base_url` variable in the collection or your Postman environment.
+
+3. **Run Requests in Order:**
+   - Start with `Health Check` to verify the service is running.
+   - Use `Register User` to create a new user (edit the email/password as needed).
+   - Use `Login User` to authenticate. The collection will automatically save the `access_token` to an environment variable.
+   - Use `Get Current User` to fetch user info (requires the `access_token`).
+   - **API Key Management:**
+     - Use `Create API Key` to generate a new API key (requires authentication).
+     - Use `List API Keys` to view all API keys for the user (requires authentication).
+     - Use `Delete API Key` to revoke an API key by ID (requires authentication; uses the `api_key_id` variable set by previous requests).
+
+4. **Tips:**
+   - The `access_token` is set automatically after login and used for authenticated requests.
+   - The `api_key_id` is set automatically after creating or listing API keys and used for deletion.
+   - You can duplicate and modify requests to test other endpoints or users.
+
+5. **Example: Testing Against a Different Host**
+   - If your API is running at `http://127.0.0.1:9000`, set `base_url` to that value in Postman before running the requests.
+
+This collection is a quick way to verify your deployment and experiment with the API interactively.
 
 ## Health Checks
 
@@ -245,26 +346,48 @@ Logs are configured with rotation:
 
 ## Development
 
-### Running Tests
+### Test Structure & Running Tests
 
-```bash
-# Run all tests
-pytest
+- **Unit tests:** Located in `tests/unit/`. Run with:
+  ```bash
+  pytest tests/unit
+  ```
+- **Integration tests:** Located in `tests/integration/`. Run with:
+  ```bash
+  pytest tests/integration
+  ```
 
-# Run specific test categories
-pytest tests/unit
-pytest tests/integration
-```
+- **Test requirements:**
+  - Create and activate a virtual environment
+  - Install with `pip install -r requirements-test.txt`
 
-### Code Quality
+### Coverage
 
-```bash
-# Run linter
-ruff check .
+- Run with:
+  ```bash
+  pytest --cov=src/locksmitha --cov-report=term-missing --cov-report=html
+  ```
+- Coverage reports are output to the terminal and as HTML.
 
-# Run formatter
-ruff format .
-```
+### Linting & Formatting
+
+- **Ruff linter:**
+  ```bash
+  ruff check .
+  ```
+- **Auto-fix with Ruff:**
+  ```bash
+  ruff check . --fix
+  ```
+- **Run formatter:**
+  ```
+  ruff format .
+  ```
+- **Pre-commit hooks:**
+  ```bash
+  pre-commit run --all-files
+  ```
+  Fix any errors before pushing code.
 
 ## CI/CD
 

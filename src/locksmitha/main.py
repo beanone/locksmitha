@@ -5,10 +5,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from keylin import db
 from keylin.auth import auth_backend, fastapi_users
-from keylin.models import Base
 from keylin.schemas import UserCreate, UserRead
-from sqlalchemy.ext.asyncio import create_async_engine
 
 from . import apikey
 from .config import Settings
@@ -22,14 +21,11 @@ logging.basicConfig(
 def create_app() -> FastAPI:
     """App factory for FastAPI application."""
     settings = Settings()
-
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         # Automatically create tables if they do not exist (dev/CI only)
-        engine = create_async_engine(settings.DATABASE_URL, echo=True)
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        yield
+        async with db.lifespan():
+            yield
 
     app = FastAPI(title="Keylin Login Service", version="1.0.0", lifespan=lifespan)
 
