@@ -6,10 +6,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from keylin import db
-from keylin.auth import auth_backend, fastapi_users
 from keylin.schemas import UserCreate, UserRead
 
 from . import apikey
+from .auth import auth_backend, fastapi_users
 from .config import Settings
 
 logging.basicConfig(
@@ -55,6 +55,16 @@ def create_app() -> FastAPI:
         tags=["users"],
     )
     app.include_router(apikey.router)
+    app.include_router(
+        fastapi_users.get_reset_password_router(),
+        prefix="/auth",
+        tags=["auth"],
+    )
+    app.include_router(
+        fastapi_users.get_verify_router(UserRead),
+        prefix="/auth",
+        tags=["auth"],
+    )
 
     @app.get("/health", tags=["health"])
     def health_check() -> dict[str, str]:

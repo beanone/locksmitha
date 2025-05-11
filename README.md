@@ -20,6 +20,7 @@
 - [Project Structure](#project-structure)
 - [Setup & Usage](#setup--usage)
 - [Environment Variables](#environment-variables)
+- [Setting Up the User Database and Admin User Account](#setting-up-the-user-database-and-admin-user-account)
 - [Docker Configuration](#docker-configuration)
 - [API Endpoints](#api-endpoints)
 - [API Documentation](#api-documentation)
@@ -177,6 +178,55 @@ ALLOWED_ORIGINS=["http://localhost:8001", "http://127.0.0.1:8001"]
 # Optional Settings
 LOG_LEVEL=INFO
 ```
+
+## Setting Up the User Database and Admin User Account
+
+> **Adapted from [keylin README](https://github.com/beanone/keylin#setting-up-the-user-database) and [Admin User Account Setup](https://github.com/beanone/keylin#admin-user-account-setup).**
+
+Before running Locksmitha, you need to ensure the user table exists in your database.
+
+**Automatic Table Creation:**
+- Locksmitha will automatically create the user table at startup if it does not exist. This is convenient for development, CI, and first-run scenarios.
+
+**Production Best Practice:**
+- For production and team environments, it is still recommended to use Alembic migrations to manage database schema changes and ensure consistency.
+- Example Alembic setup:
+  ```bash
+  alembic revision --autogenerate -m "create user table"
+  alembic upgrade head
+  ```
+  Make sure your Alembic `env.py` includes the keylin model's metadata:
+  ```python
+  from keylin.models import Base
+  target_metadata = Base.metadata
+  ```
+
+**Programmatic Table Creation (for local/dev):**
+  ```python
+  from keylin.models import Base
+  from sqlalchemy import create_engine
+
+  engine = create_engine("sqlite:///./test.db")  # Or your DB URL
+  Base.metadata.create_all(engine)
+  ```
+
+> **Note:** For production, always use migrations to avoid data loss and ensure schema consistency.
+
+---
+
+### Admin User Account Setup
+
+- After the user table is created (by Locksmitha, Alembic, or programmatically), Locksmitha will automatically create an admin (superuser) account if one does not already exist.
+- **Default admin credentials:**
+  - Email: `admin@example.com`
+  - Password: `changeme`
+  - Full name: `Admin`
+- **Override defaults in production:** Set the following environment variables before starting your app to change the admin account credentials:
+  - `ADMIN_EMAIL` (default: `admin@example.com`)
+  - `ADMIN_PASSWORD` (default: `changeme`)
+  - `ADMIN_FULL_NAME` (default: `Admin`)
+- > **Security Note:** Always override the default admin password and email in production environments!
+- The admin user is created only if no superuser exists in the database. If you delete the admin user, it will be recreated on the next app startup unless another superuser exists.
 
 ## Docker Configuration
 

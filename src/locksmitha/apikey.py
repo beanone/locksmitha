@@ -4,10 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from keylin.apikey_manager import create_api_key as handler_create_api_key
 from keylin.apikey_manager import delete_api_key as handler_delete_api_key
 from keylin.apikey_manager import list_api_keys as handler_list_api_keys
-from keylin.auth import current_active_user
 from keylin.db import get_async_session
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from .auth import current_active_user
 
 
 class APIKeyCreateRequest(BaseModel):

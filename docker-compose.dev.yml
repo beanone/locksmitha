@@ -7,6 +7,9 @@ services:
       - "8001:8001"
     env_file:
       - .env
+    environment:
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
     volumes:
       - ./src:/app/src  # Mount source code for live reload
     healthcheck:
@@ -32,6 +35,8 @@ services:
       - app_network
     depends_on:
       db:
+        condition: service_healthy
+      mailpit:
         condition: service_healthy
 
   db:
@@ -62,6 +67,20 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    networks:
+      - app_network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "1025"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - app_network
 
