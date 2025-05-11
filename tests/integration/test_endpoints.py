@@ -26,20 +26,23 @@ async def test_with_isolated_db(monkeypatch):
             assert response.json() == {"status": "ok"}
 
             # Test register endpoint
-            response = client.post("/auth/register",
-                                   json={"email": "test@test.com", "password": "test"})
+            response = client.post(
+                "/auth/register", json={"email": "test@test.com", "password": "test"}
+            )
             assert response.status_code == 201
 
             # Test login endpoint
-            response = client.post("/auth/jwt/login",
-                                   data={"username": "test@test.com",
-                                         "password": "test"})
+            response = client.post(
+                "/auth/jwt/login",
+                data={"username": "test@test.com", "password": "test"},
+            )
             assert response.status_code == 200
             token = response.json()["access_token"]
 
             # Test users/me endpoint
-            response = client.get("/users/me",
-                                  headers={"Authorization": f"Bearer {token}"})
+            response = client.get(
+                "/users/me", headers={"Authorization": f"Bearer {token}"}
+            )
             assert response.status_code == 200
 
         os.remove(db_path)

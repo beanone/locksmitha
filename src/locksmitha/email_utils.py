@@ -6,6 +6,7 @@ from .config import Settings
 
 logger = logging.getLogger(__name__)
 
+
 def send_email(to_email: str, subject: str, body: str):
     """Send an email using SMTP settings from environment variables."""
     settings = Settings()

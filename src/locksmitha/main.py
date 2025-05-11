@@ -21,6 +21,7 @@ logging.basicConfig(
 def create_app() -> FastAPI:
     """App factory for FastAPI application."""
     settings = Settings()
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         # Automatically create tables if they do not exist (dev/CI only)
@@ -72,5 +73,6 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     return app
+
 
 app = create_app()

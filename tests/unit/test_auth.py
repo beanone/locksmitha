@@ -18,7 +18,7 @@ async def test_on_after_login(user, caplog):
     manager = UserManager(None)
     with caplog.at_level(logging.INFO):
         await manager.on_after_login(user)
-    assert "User login: id=123" in caplog.text
+    assert f"User {user.id} logged in" in caplog.text
 
 
 @pytest.mark.asyncio
@@ -40,7 +40,7 @@ async def test_on_after_forgot_password(user):
         mock_send_email.assert_called_once_with(
             to_email="test@example.com",
             subject="Password Reset",
-            body=f"Click the link to reset your password: {expected_link}"
+            body=f"Click the link to reset your password: {expected_link}",
         )
 
 
@@ -55,7 +55,7 @@ async def test_on_after_request_verify(user):
         mock_send_email.assert_called_once_with(
             to_email="test@example.com",
             subject="Verify Your Email",
-            body=f"Click the link to verify your email: {expected_link}"
+            body=f"Click the link to verify your email: {expected_link}",
         )
 
 

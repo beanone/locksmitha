@@ -51,6 +51,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     user lifecycle events. It uses secrets loaded from environment variables for
     password reset and email verification tokens, ensuring security and configurability.
     """
+
     settings = Settings()
     reset_password_token_secret = settings.RESET_PASSWORD_SECRET
     verification_token_secret = settings.VERIFICATION_SECRET
@@ -59,7 +60,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         self,
         user: User,
         request: Request | None = None,
-        response: Response | None = None
+        response: Response | None = None,
     ) -> None:
         """Called after a successful user login.
 
@@ -76,9 +77,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         """
         logger.info(f"User registered: id={user.id}")
 
-
-    async def on_after_forgot_password(self, user: User, token: str,
-                                       request: Request = None) -> None:
+    async def on_after_forgot_password(
+        self, user: User, token: str, request: Request = None
+    ) -> None:
         """Called after a user requests a password reset.
 
         Sends a password reset email with a secure, time-limited token. The reset
@@ -89,12 +90,12 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         send_email(
             to_email=user.email,
             subject="Password Reset",
-            body=f"Click the link to reset your password: {reset_link}"
+            body=f"Click the link to reset your password: {reset_link}",
         )
 
-
-    async def on_after_request_verify(self, user: User, token: str,
-                                      request: Request = None) -> None:
+    async def on_after_request_verify(
+        self, user: User, token: str, request: Request = None
+    ) -> None:
         """Called after a user requests email verification.
 
         Sends a verification email with a secure, time-limited token. The verification
@@ -105,7 +106,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         send_email(
             to_email=user.email,
             subject="Verify Your Email",
-            body=f"Click the link to verify your email: {verify_link}"
+            body=f"Click the link to verify your email: {verify_link}",
         )
 
     # Additional hooks and business logic can be added here as needed.
@@ -116,6 +117,7 @@ async def get_user_manager(
 ) -> AsyncGenerator[UserManager, None]:
     """Dependency for providing a UserManager instance with the correct user DB."""
     yield UserManager(user_db)
+
 
 fastapi_users = FastAPIUsers[User, uuid.UUID](
     get_user_manager,
