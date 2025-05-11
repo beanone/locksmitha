@@ -20,6 +20,7 @@
 - [Project Structure](#project-structure)
 - [Setup & Usage](#setup--usage)
 - [Environment Variables](#environment-variables)
+- [Setting Up the User Database and Admin User Account](#setting-up-the-user-database-and-admin-user-account)
 - [Docker Configuration](#docker-configuration)
 - [API Endpoints](#api-endpoints)
 - [API Documentation](#api-documentation)
@@ -30,6 +31,7 @@
 - [Development](#development)
 - [CI/CD](#cicd)
 - [License](#license)
+- [Manual Password Reset](#manual-password-reset)
 
 ---
 
@@ -178,6 +180,55 @@ ALLOWED_ORIGINS=["http://localhost:8001", "http://127.0.0.1:8001"]
 LOG_LEVEL=INFO
 ```
 
+## Setting Up the User Database and Admin User Account
+
+> **Adapted from [keylin README](https://github.com/beanone/keylin#setting-up-the-user-database) and [Admin User Account Setup](https://github.com/beanone/keylin#admin-user-account-setup).**
+
+Before running Locksmitha, you need to ensure the user table exists in your database.
+
+**Automatic Table Creation:**
+- Locksmitha will automatically create the user table at startup if it does not exist. This is convenient for development, CI, and first-run scenarios.
+
+**Production Best Practice:**
+- For production and team environments, it is still recommended to use Alembic migrations to manage database schema changes and ensure consistency.
+- Example Alembic setup:
+  ```bash
+  alembic revision --autogenerate -m "create user table"
+  alembic upgrade head
+  ```
+  Make sure your Alembic `env.py` includes the keylin model's metadata:
+  ```python
+  from keylin.models import Base
+  target_metadata = Base.metadata
+  ```
+
+**Programmatic Table Creation (for local/dev):**
+  ```python
+  from keylin.models import Base
+  from sqlalchemy import create_engine
+
+  engine = create_engine("sqlite:///./test.db")  # Or your DB URL
+  Base.metadata.create_all(engine)
+  ```
+
+> **Note:** For production, always use migrations to avoid data loss and ensure schema consistency.
+
+---
+
+### Admin User Account Setup
+
+- After the user table is created (by Locksmitha, Alembic, or programmatically), Locksmitha will automatically create an admin (superuser) account if one does not already exist.
+- **Default admin credentials:**
+  - Email: `admin@example.com`
+  - Password: `changeme`
+  - Full name: `Admin`
+- **Override defaults in production:** Set the following environment variables before starting your app to change the admin account credentials:
+  - `ADMIN_EMAIL` (default: `admin@example.com`)
+  - `ADMIN_PASSWORD` (default: `changeme`)
+  - `ADMIN_FULL_NAME` (default: `Admin`)
+- > **Security Note:** Always override the default admin password and email in production environments!
+- The admin user is created only if no superuser exists in the database. If you delete the admin user, it will be recreated on the next app startup unless another superuser exists.
+
 ## Docker Configuration
 
 > **Note:**
@@ -240,13 +291,13 @@ For advanced deployment scenarios, see [docs/deployment_examples.md](docs/deploy
 
 | Endpoint                  | Method | Auth Required | Description                              |
 |--------------------------|--------|--------------|------------------------------------------|
-| `/auth/jwt/login`        | POST   | No           | User login (returns JWT)                 |
+| `/auth/jwt/login`        | POST   | No           | User login (returns JWT; **requires `application/x-www-form-urlencoded` with `username` and `password` fields**) |
 | `/auth/register`         | POST   | No           | User registration                        |
 | `/users/me`              | GET    | Yes          | Get current user info                    |
-| `/users/`                | GET    | Yes (admin)  | List users (admin only)                  |
-| `/auth/forgot-password`  | POST   | No           | Request password reset (if enabled)      |
-| `/auth/reset-password`   | POST   | No           | Reset password (if enabled)              |
-| `/auth/verify`           | POST   | No           | Email verification (if enabled)          |
+| `/users/`                | GET    | Yes (admin)  | List users (**admin only; user must have `is_superuser: true`**) |
+| `/auth/forgot-password`  | POST   | No           | Request password reset (**if enabled**)  |
+| `/auth/reset-password`   | POST   | No           | Reset password (**if enabled**)          |
+| `/auth/verify`           | POST   | No           | Email verification (**if enabled**)      |
 | `/api-keys/`             | POST   | Yes          | Create a new API key                     |
 | `/api-keys/`             | GET    | Yes          | List all API keys for the user           |
 | `/api-keys/{key_id}`     | DELETE | Yes          | Delete (revoke) an API key by ID         |
@@ -415,3 +466,9 @@ Locksmitha uses GitHub Actions for continuous integration and deployment:
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/beanone/locksmitha/blob/main/LICENSE) file for more details.
+
+## Manual Password Reset
+
+If you need to manually test the password reset functionality or perform a password reset without a dedicated frontend application, please refer to the following guide:
+
+- **[Manual Password Reset Guide (Using Curl)](./MANUAL_PASSWORD_RESET.md)**

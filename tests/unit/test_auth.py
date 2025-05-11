@@ -1,5 +1,5 @@
 import logging
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -18,7 +18,7 @@ async def test_on_after_login(user, caplog):
     manager = UserManager(None)
     with caplog.at_level(logging.INFO):
         await manager.on_after_login(user)
-    assert "User login: id=123" in caplog.text
+    assert f"User {user.id} logged in" in caplog.text
 
 
 @pytest.mark.asyncio
@@ -30,19 +30,33 @@ async def test_on_after_register(user, caplog):
 
 
 @pytest.mark.asyncio
-async def test_on_after_forgot_password(user, caplog):
+async def test_on_after_forgot_password(user):
     manager = UserManager(None)
-    with caplog.at_level(logging.INFO):
-        await manager.on_after_forgot_password(user, token="dummy")
-    assert "Password reset requested: id=123" in caplog.text
+    user.email = "test@example.com"
+    token = "dummy-token"
+    expected_link = f"{manager.settings.frontend_url}/reset-password?token={token}"
+    with patch("locksmitha.auth.send_email") as mock_send_email:
+        await manager.on_after_forgot_password(user, token=token)
+        mock_send_email.assert_called_once_with(
+            to_email="test@example.com",
+            subject="Password Reset",
+            body=f"Click the link to reset your password: {expected_link}",
+        )
 
 
 @pytest.mark.asyncio
-async def test_on_after_request_verify(user, caplog):
+async def test_on_after_request_verify(user):
     manager = UserManager(None)
-    with caplog.at_level(logging.INFO):
-        await manager.on_after_request_verify(user, token="dummy")
-    assert "Verification requested: id=123" in caplog.text
+    user.email = "test@example.com"
+    token = "dummy-token"
+    expected_link = f"{manager.settings.frontend_url}/verify-email?token={token}"
+    with patch("locksmitha.auth.send_email") as mock_send_email:
+        await manager.on_after_request_verify(user, token=token)
+        mock_send_email.assert_called_once_with(
+            to_email="test@example.com",
+            subject="Verify Your Email",
+            body=f"Click the link to verify your email: {expected_link}",
+        )
 
 
 @pytest.mark.asyncio
