@@ -31,6 +31,7 @@
 - [Development](#development)
 - [CI/CD](#cicd)
 - [License](#license)
+- [Manual Password Reset](#manual-password-reset)
 
 ---
 
@@ -465,3 +466,9 @@ Locksmitha uses GitHub Actions for continuous integration and deployment:
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](https://github.com/beanone/locksmitha/blob/main/LICENSE) file for more details.
+
+## Manual Password Reset
+
+If you need to manually test the password reset functionality or perform a password reset without a dedicated frontend application, please refer to the following guide:
+
+- **[Manual Password Reset Guide (Using Curl)](./MANUAL_PASSWORD_RESET.md)**
