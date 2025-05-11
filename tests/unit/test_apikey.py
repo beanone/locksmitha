@@ -164,8 +164,10 @@ async def test_delete_api_key_not_found(
     # Configure the patched handler to simulate "not found"
     mock_handler_delete_api_key.return_value = False
 
-    # No need to mock the DB session here since we're mocking the handler that uses it.
-    # app.dependency_overrides[keylin_get_async_session] = lambda: mock_db_session
+    # The DB session still needs to be mocked for the app's dependency resolution,
+    # even if the handler that uses it is mocked.
+    mock_db_session = AsyncMock(spec=AsyncSession)
+    app.dependency_overrides[keylin_get_async_session] = lambda: mock_db_session
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
