@@ -9,6 +9,7 @@ from keylin import db
 from keylin.schemas import UserCreate, UserRead
 
 from . import apikey
+from .api_key_auth import router as api_key_auth_router
 from .auth import auth_backend, fastapi_users
 from .config import Settings
 
@@ -56,6 +57,7 @@ def create_app() -> FastAPI:
         tags=["users"],
     )
     app.include_router(apikey.router)
+    app.include_router(api_key_auth_router)
     app.include_router(
         fastapi_users.get_reset_password_router(),
         prefix="/auth",

@@ -46,7 +46,7 @@ def fake_api_key_instance():
     )
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 @patch("keylin.apikey_manager.create_api_key_record")
 async def test_create_api_key(
     mock_create_api_key_record, fake_user, fake_api_key_instance
@@ -82,7 +82,7 @@ async def test_create_api_key(
     app.dependency_overrides = {}
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_list_api_keys(fake_user, fake_api_key_instance):
     app.dependency_overrides[current_active_user] = lambda: fake_user
 
@@ -115,7 +115,7 @@ async def test_list_api_keys(fake_user, fake_api_key_instance):
     app.dependency_overrides = {}
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_delete_api_key_success(fake_user, fake_api_key_instance):
     app.dependency_overrides[current_active_user] = lambda: fake_user
 
@@ -154,7 +154,7 @@ async def test_delete_api_key_success(fake_user, fake_api_key_instance):
     app.dependency_overrides = {}
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 @patch("src.locksmitha.apikey.handler_delete_api_key")
 async def test_delete_api_key_not_found(
     mock_handler_delete_api_key: AsyncMock, fake_user
