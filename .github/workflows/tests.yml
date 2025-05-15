@@ -40,7 +40,8 @@ jobs:
           echo "VERIFICATION_SECRET=supersecretresetkey" >> $GITHUB_ENV
           echo "DATABASE_URL=sqlite+aiosqlite:///./test.db" >> $GITHUB_ENV
           echo "ALLOWED_ORIGINS=[\"http://localhost:8000\"]" >> $GITHUB_ENV
-
+          echo "ADMIN_EMAIL=keylin@locksmitha.com" >> $GITHUB_ENV
+          echo "ADMIN_PASSWORD=locksmitha" >> $GITHUB_ENV
 
       - name: Run unit tests
         run: |
