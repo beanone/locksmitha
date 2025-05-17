@@ -1,4 +1,4 @@
-"""User manager and authentication backend setup for locksmitha login service.
+"""User manager and authentication backend setup for login login service.
 
 This module defines the UserManager class, which handles user-related events
 such as registration, login, password reset, and email verification. It is designed
@@ -24,7 +24,7 @@ from userdb.models import User
 from .config import Settings
 from .email_utils import send_email
 
-logger = logging.getLogger("locksmitha.auth")
+logger = logging.getLogger("login.auth")
 
 settings = Settings()
 

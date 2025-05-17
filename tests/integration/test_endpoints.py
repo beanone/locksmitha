@@ -16,7 +16,7 @@ async def test_with_isolated_db(monkeypatch):
         monkeypatch.setenv("DATABASE_URL", db_url)
         monkeypatch.setenv("JWT_SECRET", "test_jwt_secret")
 
-        from src.locksmitha.main import create_app
+        from src.login.main import create_app
 
         test_app = create_app()
         with TestClient(test_app) as client:

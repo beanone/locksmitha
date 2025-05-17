@@ -1,6 +1,6 @@
-# Integration Testing with Locksmitha
+# Integration Testing with login
 
-When writing integration tests for services that use Locksmitha for authentication, follow these guidelines:
+When writing integration tests for services that use login for authentication, follow these guidelines:
 
 ### 1. **Test Setup**
 
@@ -11,17 +11,17 @@ When writing integration tests for services that use Locksmitha for authenticati
 
 2. **Configure Test Environment**
    ```bash
-   # For tests, you can use any test secret - it doesn't need to match Locksmitha
+   # For tests, you can use any test secret - it doesn't need to match login
    # The test will use this secret for both creating and validating JWTs
    export JWT_SECRET="test_secret"
    ```
 
-> **Note:** In tests, the JWT secret doesn't need to match the one used by Locksmitha. This is because:
-> - Tests are self-contained and don't communicate with the real Locksmitha service
+> **Note:** In tests, the JWT secret doesn't need to match the one used by login. This is because:
+> - Tests are self-contained and don't communicate with the real login service
 > - The same test secret is used for both creating and validating JWTs
 > - This allows tests to run independently and reliably without external dependencies
 >
-> In production, however, the `JWT_SECRET` must match the one used by Locksmitha.
+> In production, however, the `JWT_SECRET` must match the one used by login.
 
 ### 2. **Writing Tests**
 
@@ -118,7 +118,7 @@ Always test these scenarios in your integration tests:
 2. **Update Secrets Manager**
    - Add new secret to your secrets manager
    - Keep old secret for grace period
-   - Update Locksmitha to use new secret
+   - Update login to use new secret
 
 3. **Update Environment Variables**
    - Update `JWT_SECRET` in all services

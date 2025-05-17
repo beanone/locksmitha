@@ -1,6 +1,6 @@
 [run]
 branch = True
-source = src/locksmitha
+source = src/login
 omit =
     */__init__.py
     */tests/*

@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from src.locksmitha.main import app
+from src.login.main import app
 
 
 @pytest.mark.asyncio
