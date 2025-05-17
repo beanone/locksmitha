@@ -18,7 +18,7 @@ RUN pip install -r requirements-test.txt
 
 COPY . .
 
-CMD ["uvicorn", "src.locksmitha.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.login.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 ### Suggested Improvements:
@@ -38,7 +38,7 @@ CMD ["uvicorn", "src.locksmitha.main:app", "--host", "0.0.0.0", "--port", "8000"
      COPY --from=builder /app/dist/*.whl ./
      RUN pip install *.whl
      COPY . .
-     CMD ["uvicorn", "src.locksmitha.main:app", "--host", "0.0.0.0", "--port", "8000"]
+     CMD ["uvicorn", "src.login.main:app", "--host", "0.0.0.0", "--port", "8000"]
      ```
 
 2. **Pin Dependencies:**
@@ -76,9 +76,9 @@ CMD ["uvicorn", "src.locksmitha.main:app", "--host", "0.0.0.0", "--port", "8000"
 ```yaml
 version: '3.8'
 services:
-  locksmitha:
+  login:
     build: .
-    command: uvicorn src.locksmitha.main:app --host 0.0.0.0 --port 8001 --reload
+    command: uvicorn src.login.main:app --host 0.0.0.0 --port 8001 --reload
     ports:
       - "8001:8001"
     env_file:
@@ -90,7 +90,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: keylindb
+      POSTGRES_DB: userdb
     ports:
       - "5432:5432"
 ```

@@ -1,6 +1,6 @@
-# Role-Based Access Control (RBAC) Architecture for Locksmitha
+# Role-Based Access Control (RBAC) Architecture for login
 
-This document outlines architectural options and best practices for implementing role-based access control (RBAC) in the Locksmitha authentication ecosystem and its integrated services.
+This document outlines architectural options and best practices for implementing role-based access control (RBAC) in the login authentication ecosystem and its integrated services.
 
 ---
 

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from locksmitha.auth import UserManager
+from login.auth import UserManager
 
 
 @pytest.fixture
@@ -35,7 +35,7 @@ async def test_on_after_forgot_password(user):
     user.email = "test@example.com"
     token = "dummy-token"
     expected_link = f"{manager.settings.frontend_url}/reset-password?token={token}"
-    with patch("locksmitha.auth.send_email") as mock_send_email:
+    with patch("login.auth.send_email") as mock_send_email:
         await manager.on_after_forgot_password(user, token=token)
         mock_send_email.assert_called_once_with(
             to_email="test@example.com",
@@ -50,7 +50,7 @@ async def test_on_after_request_verify(user):
     user.email = "test@example.com"
     token = "dummy-token"
     expected_link = f"{manager.settings.frontend_url}/verify-email?token={token}"
-    with patch("locksmitha.auth.send_email") as mock_send_email:
+    with patch("login.auth.send_email") as mock_send_email:
         await manager.on_after_request_verify(user, token=token)
         mock_send_email.assert_called_once_with(
             to_email="test@example.com",
@@ -63,7 +63,7 @@ async def test_on_after_request_verify(user):
 async def test_get_user_manager():
     from unittest.mock import MagicMock
 
-    from locksmitha.auth import get_user_manager
+    from login.auth import get_user_manager
 
     mock_user_db = MagicMock()
     agen = get_user_manager(user_db=mock_user_db)

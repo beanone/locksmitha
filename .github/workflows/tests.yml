@@ -40,16 +40,16 @@ jobs:
           echo "VERIFICATION_SECRET=supersecretresetkey" >> $GITHUB_ENV
           echo "DATABASE_URL=sqlite+aiosqlite:///./test.db" >> $GITHUB_ENV
           echo "ALLOWED_ORIGINS=[\"http://localhost:8000\"]" >> $GITHUB_ENV
-          echo "ADMIN_EMAIL=keylin@locksmitha.com" >> $GITHUB_ENV
-          echo "ADMIN_PASSWORD=locksmitha" >> $GITHUB_ENV
+          echo "ADMIN_EMAIL=userdb@login.com" >> $GITHUB_ENV
+          echo "ADMIN_PASSWORD=login" >> $GITHUB_ENV
 
       - name: Run unit tests
         run: |
-          pytest tests/unit -v --cov=src/locksmitha --cov-branch --cov-report=xml
+          pytest tests/unit -v --cov=src/login --cov-branch --cov-report=xml
 
       - name: Run integration tests
         run: |
-          pytest tests/integration -v --cov=src/locksmitha --cov-branch --cov-report=xml --cov-append
+          pytest tests/integration -v --cov=src/login --cov-branch --cov-report=xml --cov-append
 
       - name: Upload coverage
         uses: codecov/codecov-action@v5

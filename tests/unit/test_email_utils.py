@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from locksmitha.config import Settings
-from locksmitha.email_utils import send_email
+from login.config import Settings
+from login.email_utils import send_email
 
 
 @pytest.mark.parametrize(
@@ -20,8 +20,8 @@ from locksmitha.email_utils import send_email
 def test_send_email_branches(smtp_tls, smtp_user, smtp_pass, expected_from):
     """Test send_email covers all branches: TLS, auth, and From address logic."""
     with (
-        patch("locksmitha.email_utils.Settings") as mock_settings,
-        patch("locksmitha.email_utils.smtplib.SMTP") as mock_smtp,
+        patch("login.email_utils.Settings") as mock_settings,
+        patch("login.email_utils.smtplib.SMTP") as mock_smtp,
     ):
         # Mock settings
         instance = mock_settings.return_value

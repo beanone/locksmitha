@@ -1,34 +1,34 @@
-# Integration Testing with Locksmitha
+# Integration Testing with login
 
-When writing integration tests for services that use Locksmitha for authentication, follow these guidelines:
+When writing integration tests for services that use login for authentication, follow these guidelines:
 
 ### 1. **Test Setup**
 
 1. **Install Dependencies**
    ```bash
-   pip install fastapi httpx pytest pytest-asyncio keylin
+   pip install fastapi httpx pytest pytest-asyncio userdb
    ```
 
 2. **Configure Test Environment**
    ```bash
-   # For tests, you can use any test secret - it doesn't need to match Locksmitha
+   # For tests, you can use any test secret - it doesn't need to match login
    # The test will use this secret for both creating and validating JWTs
    export JWT_SECRET="test_secret"
    ```
 
-> **Note:** In tests, the JWT secret doesn't need to match the one used by Locksmitha. This is because:
-> - Tests are self-contained and don't communicate with the real Locksmitha service
+> **Note:** In tests, the JWT secret doesn't need to match the one used by login. This is because:
+> - Tests are self-contained and don't communicate with the real login service
 > - The same test secret is used for both creating and validating JWTs
 > - This allows tests to run independently and reliably without external dependencies
 >
-> In production, however, the `JWT_SECRET` must match the one used by Locksmitha.
+> In production, however, the `JWT_SECRET` must match the one used by login.
 
 ### 2. **Writing Tests**
 
 1. **Create Test JWTs**
    ```python
    from uuid import UUID
-   from keylin.jwt_utils import create_jwt_for_user
+   from userdb.jwt_utils import create_jwt_for_user
 
    # Create a test user ID (use a consistent UUID for your tests)
    test_user_id = UUID("12345678-1234-5678-1234-567812345678")
@@ -46,7 +46,7 @@ When writing integration tests for services that use Locksmitha for authenticati
    from fastapi import FastAPI, Depends, HTTPException
    from fastapi.security import HTTPBearer
    import jwt
-   from keylin.config import JWT_SECRET, JWT_ALGORITHM
+   from userdb.config import JWT_SECRET, JWT_ALGORITHM
 
    app = FastAPI()
    security = HTTPBearer()
@@ -118,7 +118,7 @@ Always test these scenarios in your integration tests:
 2. **Update Secrets Manager**
    - Add new secret to your secrets manager
    - Keep old secret for grace period
-   - Update Locksmitha to use new secret
+   - Update login to use new secret
 
 3. **Update Environment Variables**
    - Update `JWT_SECRET` in all services

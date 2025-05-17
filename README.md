@@ -1,15 +1,15 @@
-# Locksmitha
+# login
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/beanone/locksmitha/refs/heads/main/docs/assets/logos/locksmitha.svg" alt="Locksmitha Login Service" width="100%">
+  <img src="https://raw.githubusercontent.com/beanone/login/refs/heads/main/docs/assets/logos/login.svg" alt="login Login Service" width="100%">
 </p>
 
-[![GitHub release](https://img.shields.io/github/v/release/beanone/locksmitha?include_prereleases&sort=semver)](https://github.com/beanone/locksmitha/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/beanone/locksmitha/blob/main/LICENSE)
-[![Tests](https://github.com/beanone/locksmitha/actions/workflows/tests.yml/badge.svg)](https://github.com/beanone/locksmitha/actions?query=workflow%3Atests)
-[![Coverage](https://codecov.io/gh/beanone/locksmitha/branch/main/graph/badge.svg)](https://codecov.io/gh/beanone/locksmitha)
+[![GitHub release](https://img.shields.io/github/v/release/beanone/login?include_prereleases&sort=semver)](https://github.com/beanone/login/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/beanone/login/blob/main/LICENSE)
+[![Tests](https://github.com/beanone/login/actions/workflows/tests.yml/badge.svg)](https://github.com/beanone/login/actions?query=workflow%3Atests)
+[![Coverage](https://codecov.io/gh/beanone/login/branch/main/graph/badge.svg)](https://codecov.io/gh/beanone/login)
 [![Code Quality](https://img.shields.io/badge/code%20style-ruff-000000)](https://github.com/astral-sh/ruff)
-[![Security Scan](https://github.com/beanone/locksmitha/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/beanone/locksmitha/actions/workflows/docker-publish.yml)
+[![Security Scan](https://github.com/beanone/login/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/beanone/login/actions/workflows/docker-publish.yml)
 
 ---
 
@@ -37,7 +37,7 @@
 
 ## Overview & Architecture
 
-Locksmitha implements a secure, extensible authentication and user management service using FastAPI, SQLAlchemy, and [keylin](https://github.com/beanone/keylin). It is designed to be the authentication backend for modern web applications and microservices.
+login implements a secure, extensible authentication and user management service using FastAPI, SQLAlchemy, and [userdb](https://github.com/beanone/userdb). It is designed to be the authentication backend for modern web applications and microservices.
 
 **Key features:**
 - JWT-based authentication
@@ -60,8 +60,8 @@ flowchart LR
         AP[App Service]
     end
 
-    subgraph LS["Locksmitha Login Service"]
-        A[FastAPI + keylin]
+    subgraph LS["login Login Service"]
+        A[FastAPI + beanone-userdb]
         DB[(Postgres DB)]
     end
 
@@ -89,8 +89,8 @@ flowchart LR
 ## Project Structure
 
 ```
-locksmitha/
-├── src/locksmitha/
+login/
+├── src/login/
 │   ├── main.py
 │   ├── config.py
 │   ├── auth.py
@@ -154,7 +154,7 @@ The service will be available at `http://localhost:8001`.
 
 4. **Run the service**:
    ```bash
-   uvicorn src.locksmitha.main:app --reload
+   uvicorn src.login.main:app --reload
    ```
 
 ## Environment Variables
@@ -170,7 +170,7 @@ VERIFICATION_SECRET=your_verification_secret
 # Database Configuration
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=your_password
-POSTGRES_DB=keylindb
+POSTGRES_DB=userdb
 DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 
 # CORS Settings
@@ -182,12 +182,12 @@ LOG_LEVEL=INFO
 
 ## Setting Up the User Database and Admin User Account
 
-> **Adapted from [keylin README](https://github.com/beanone/keylin#setting-up-the-user-database) and [Admin User Account Setup](https://github.com/beanone/keylin#admin-user-account-setup).**
+> **Adapted from [userdb README](https://github.com/beanone/userdb#setting-up-the-user-database) and [Admin User Account Setup](https://github.com/beanone/userdb#admin-user-account-setup).**
 
-Before running Locksmitha, you need to ensure the user table exists in your database.
+Before running login, you need to ensure the user table exists in your database.
 
 **Automatic Table Creation:**
-- Locksmitha will automatically create the user table at startup if it does not exist. This is convenient for development, CI, and first-run scenarios.
+- login will automatically create the user table at startup if it does not exist. This is convenient for development, CI, and first-run scenarios.
 
 **Production Best Practice:**
 - For production and team environments, it is still recommended to use Alembic migrations to manage database schema changes and ensure consistency.
@@ -196,15 +196,15 @@ Before running Locksmitha, you need to ensure the user table exists in your data
   alembic revision --autogenerate -m "create user table"
   alembic upgrade head
   ```
-  Make sure your Alembic `env.py` includes the keylin model's metadata:
+  Make sure your Alembic `env.py` includes the userdb model's metadata:
   ```python
-  from keylin.models import Base
+  from userdb.models import Base
   target_metadata = Base.metadata
   ```
 
 **Programmatic Table Creation (for local/dev):**
   ```python
-  from keylin.models import Base
+  from userdb.models import Base
   from sqlalchemy import create_engine
 
   engine = create_engine("sqlite:///./test.db")  # Or your DB URL
@@ -217,7 +217,7 @@ Before running Locksmitha, you need to ensure the user table exists in your data
 
 ### Admin User Account Setup
 
-- After the user table is created (by Locksmitha, Alembic, or programmatically), Locksmitha will automatically create an admin (superuser) account if one does not already exist.
+- After the user table is created (by login, Alembic, or programmatically), login will automatically create an admin (superuser) account if one does not already exist.
 - **Default admin credentials:**
   - Email: `admin@example.com`
   - Password: `changeme`
@@ -298,44 +298,32 @@ For advanced deployment scenarios, see [docs/deployment_examples.md](docs/deploy
 | `/auth/forgot-password`  | POST   | No           | Request password reset (**if enabled**)  |
 | `/auth/reset-password`   | POST   | No           | Reset password (**if enabled**)          |
 | `/auth/verify`           | POST   | No           | Email verification (**if enabled**)      |
-| `/api-keys/`             | POST   | Yes          | Create a new API key                     |
-| `/api-keys/`             | GET    | Yes          | List all API keys for the user           |
-| `/api-keys/{key_id}`     | DELETE | Yes          | Delete (revoke) an API key by ID         |
 | `/health`                | GET    | No           | Health check endpoint                    |
 
-**API Key Management:**
-- To use API key endpoints, authenticate as a user, then:
-  - `POST /api-keys/` to create a new API key (provide `service_id`, optional `name` and `expires_at`).
-  - `GET /api-keys/` to list your API keys.
-  - `DELETE /api-keys/{key_id}` to revoke an API key.
 
 ## API Documentation
 
 - **Interactive API docs** are available at [`/docs`](http://localhost:8001/docs) (Swagger UI) and [`/redoc`](http://localhost:8001/redoc) when the service is running.
 - **Typical flow:**
   1. Register or log in to obtain a JWT.
-  2. Use the JWT as a Bearer token for authenticated endpoints (e.g., `/users/me`, `/api-keys/`).
   3. Explore and test endpoints directly in the Swagger UI.
 
 ## Postman Collection
 
-A ready-to-use Postman collection is provided for testing and exploring the Locksmitha API.
+A ready-to-use Postman collection is provided for testing and exploring the login API.
 
-- **Location:** `tests/postman/locksmitha.postman_collection.json`
+- **Location:** `tests/postman/login.postman_collection.json`
 - **Endpoints covered:**
   - Health check (`/health`)
   - Register user (`/auth/register`)
   - Login user (`/auth/jwt/login`)
   - Get current user info (`/users/me`)
-  - **Create API Key** (`/api-keys/`)
-  - **List API Keys** (`/api-keys/`)
-  - **Delete API Key** (`/api-keys/{api_key_id}`)
 
 ### How to Use
 
 1. **Import the Collection:**
    - Open Postman.
-   - Click `Import` and select `tests/postman/locksmitha.postman_collection.json`.
+   - Click `Import` and select `tests/postman/login.postman_collection.json`.
 
 2. **Set the `base_url` Variable:**
    - The collection uses a `base_url` variable (default: `http://localhost:8001`).
@@ -416,7 +404,7 @@ Logs are configured with rotation:
 
 - Run with:
   ```bash
-  pytest --cov=src/locksmitha --cov-report=term-missing --cov-report=html
+  pytest --cov=src/login --cov-report=term-missing --cov-report=html
   ```
 - Coverage reports are output to the terminal and as HTML.
 
@@ -442,7 +430,7 @@ Logs are configured with rotation:
 
 ## CI/CD
 
-Locksmitha uses GitHub Actions for continuous integration and deployment:
+login uses GitHub Actions for continuous integration and deployment:
 
 ### Workflows
 
@@ -465,7 +453,7 @@ Locksmitha uses GitHub Actions for continuous integration and deployment:
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/beanone/locksmitha/blob/main/LICENSE) file for more details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/beanone/login/blob/main/LICENSE) file for more details.
 
 ## Manual Password Reset
 

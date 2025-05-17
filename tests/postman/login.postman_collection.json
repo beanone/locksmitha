@@ -1,7 +1,7 @@
 {
     "info": {
-        "name": "Locksmitha Login Service",
-        "description": "API tests for locksmitha login/authentication service.",
+        "name": "login Login Service",
+        "description": "API tests for login login/authentication service.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
@@ -168,12 +168,12 @@
                     "urlencoded": [
                         {
                             "key": "username",
-                            "value": "keylin@locksmitha.com",
+                            "value": "userdb@login.com",
                             "type": "text"
                         },
                         {
                             "key": "password",
-                            "value": "locksmitha",
+                            "value": "login",
                             "type": "text"
                         }
                     ]

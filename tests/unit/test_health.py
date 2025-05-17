@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from src.locksmitha.main import app
+from src.login.main import app
 
 
 def test_health():

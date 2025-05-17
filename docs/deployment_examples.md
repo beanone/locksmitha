@@ -1,6 +1,6 @@
-# Locksmitha Deployment Examples
+# login Deployment Examples
 
-This guide provides practical examples for deploying the Locksmitha login service using Docker. It covers different ways to pass environment variables (via `.env` files) and user databases (Postgres and SQLite) for both development and production scenarios.
+This guide provides practical examples for deploying the login login service using Docker. It covers different ways to pass environment variables (via `.env` files) and user databases (Postgres and SQLite) for both development and production scenarios.
 
 ---
 
@@ -15,7 +15,7 @@ docker-compose.yml:
 
 version: '3.8'
 services:
-  locksmitha:
+  login:
     build: .
     env_file:
       - .env
@@ -28,7 +28,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: keylindb
+      POSTGRES_DB: userdb
     ports:
       - "5432:5432"
 ```
@@ -36,7 +36,7 @@ services:
 **.env Example:**
 ```env
 JWT_SECRET=supersecretjwtkey
-DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
+DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/userdb
 RESET_PASSWORD_SECRET=supersecretresetkey
 VERIFICATION_SECRET=supersecretverifykey
 ALLOWED_ORIGINS=http://localhost,http://127.0.0.1
@@ -49,8 +49,8 @@ ALLOWED_ORIGINS=http://localhost,http://127.0.0.1
 If you want to run the container directly, pass the `.env` file using `--env-file`:
 
 ```bash
-docker build -t locksmitha .
-docker run --env-file .env -p 8000:8000 locksmitha
+docker build -t login .
+docker run --env-file .env -p 8000:8000 login
 ```
 
 - Ensure `.env` is in your current directory or provide the full path.
@@ -65,7 +65,7 @@ docker run --env-file .env -p 8000:8000 locksmitha
 - Configure your `.env` with the Postgres connection string:
 
 ```env
-DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
+DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/userdb
 ```
 
 - With Docker Compose, the database is managed as a separate service (see above).
@@ -91,7 +91,7 @@ DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
 docker run --env-file .env \
   -v /path/on/host/my_prepopulated.db:/app/my_prepopulated.db \
   -e DATABASE_URL=sqlite+aiosqlite:///./my_prepopulated.db \
-  -p 8000:8000 locksmitha
+  -p 8000:8000 login
 ```
 
 - This allows you to persist or reuse user data across container restarts.
@@ -103,7 +103,7 @@ docker run --env-file .env \
 You can override any variable from `.env` by passing `-e` flags:
 
 ```bash
-docker run --env-file .env -e JWT_SECRET=anothersecret -p 8000:8000 locksmitha
+docker run --env-file .env -e JWT_SECRET=anothersecret -p 8000:8000 login
 ```
 
 ---
@@ -119,9 +119,9 @@ docker run --env-file .env -e JWT_SECRET=anothersecret -p 8000:8000 locksmitha
 
 ## 5. Environment Variables for Integrated Services
 
-When deploying Locksmitha alongside other services (such as your main application), **each service should have its own `.env` file** with only the variables relevant to that service.
+When deploying login alongside other services (such as your main application), **each service should have its own `.env` file** with only the variables relevant to that service.
 
-- The login service (`locksmitha`) is typically run from a published Docker image (e.g., via `docker pull hongyanworkshop123/locksmitha:latest`). You provide its `.env` file at runtime using `--env-file` or Docker Compose.
+- The login service (`login`) is typically run from a published Docker image (e.g., via `docker pull hongyanworkshop123/login:latest`). You provide its `.env` file at runtime using `--env-file` or Docker Compose.
 - The integrating service (e.g., your main FastAPI app) may be:
   - Run from a pulled Docker image (with its own `.env` file), **or**
   - Run from local source code (with a local `.env` file loaded by your process manager or framework).
@@ -129,7 +129,7 @@ When deploying Locksmitha alongside other services (such as your main applicatio
 **Example directory structure:**
 ```
 project-root/
-├── locksmitha.env         # For the login service (used with docker run --env-file)
+├── login.env         # For the login service (used with docker run --env-file)
 ├── myapp/
 │   ├── .env              # For your main app (local dev or docker)
 │   └── ...
@@ -139,9 +139,9 @@ project-root/
 
 ```bash
 # Run the login service from a pulled image
-# (locksmitha.env contains only login-service variables)
-docker pull beanone/locksmitha:latest
-docker run --env-file locksmitha.env -p 8000:8000 hongyanworkshop123/locksmitha:latest
+# (login.env contains only login-service variables)
+docker pull beanone/login:latest
+docker run --env-file login.env -p 8000:8000 hongyanworkshop123/login:latest
 
 # Run your integrating service from local source (using uvicorn, etc.)
 cd myapp
@@ -162,4 +162,4 @@ docker run --env-file myapp/.env -p 9000:9000 myapp
 
 ---
 
-For more details, see the main [README.md](../README.md) and [keylin documentation](https://github.com/beanone/keylin).
+For more details, see the main [README.md](../README.md) and [userdb documentation](https://github.com/beanone/userdb).

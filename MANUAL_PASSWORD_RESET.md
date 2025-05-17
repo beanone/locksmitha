@@ -6,7 +6,7 @@ This guide provides step-by-step instructions on how to manually reset a user's 
 
 ## Prerequisites
 
-1.  Your `locksmitha` FastAPI backend application is running (typically on `http://localhost:8001`).
+1.  Your `login` FastAPI backend application is running (typically on `http://localhost:8001`).
 2.  Mailpit (or your configured mail catching service) is running and accessible (typically on `http://localhost:8025` for Mailpit).
 3.  You have an existing user account in the system whose password you want to reset.
 4.  `curl` command-line tool is installed on your system.

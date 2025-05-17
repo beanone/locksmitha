@@ -2,9 +2,9 @@ import asyncio
 import os
 import uuid
 
-from keylin.models import Base, User
 from passlib.hash import argon2
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from userdb.models import Base, User
 
 TEST_DB_PATH = os.path.abspath("tests/resources/test.db")
 TEST_DB_URL = f"sqlite+aiosqlite:///{TEST_DB_PATH}"

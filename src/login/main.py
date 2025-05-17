@@ -1,15 +1,13 @@
-"""Main FastAPI application for login service using keylin and fastapi-users."""
+"""Main FastAPI application for login service using userdb and fastapi-users."""
 
 import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from keylin import db
-from keylin.schemas import UserCreate, UserRead
+from userdb import db
+from userdb.schemas import UserCreate, UserRead
 
-from . import apikey
-from .api_key_auth import router as api_key_auth_router
 from .auth import auth_backend, fastapi_users
 from .config import Settings
 
@@ -29,7 +27,7 @@ def create_app() -> FastAPI:
         async with db.lifespan():
             yield
 
-    app = FastAPI(title="Keylin Login Service", version="1.0.0", lifespan=lifespan)
+    app = FastAPI(title="userdb Login Service", version="1.0.0", lifespan=lifespan)
 
     # CORS configuration
     app.add_middleware(
@@ -56,8 +54,6 @@ def create_app() -> FastAPI:
         prefix="/users",
         tags=["users"],
     )
-    app.include_router(apikey.router)
-    app.include_router(api_key_auth_router)
     app.include_router(
         fastapi_users.get_reset_password_router(),
         prefix="/auth",
