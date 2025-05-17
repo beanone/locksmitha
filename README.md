@@ -37,7 +37,7 @@
 
 ## Overview & Architecture
 
-Locksmitha implements a secure, extensible authentication and user management service using FastAPI, SQLAlchemy, and [keylin](https://github.com/beanone/keylin). It is designed to be the authentication backend for modern web applications and microservices.
+Locksmitha implements a secure, extensible authentication and user management service using FastAPI, SQLAlchemy, and [userdb](https://github.com/beanone/userdb). It is designed to be the authentication backend for modern web applications and microservices.
 
 **Key features:**
 - JWT-based authentication
@@ -61,7 +61,7 @@ flowchart LR
     end
 
     subgraph LS["Locksmitha Login Service"]
-        A[FastAPI + keylin]
+        A[FastAPI + beanone-userdb]
         DB[(Postgres DB)]
     end
 
@@ -170,7 +170,7 @@ VERIFICATION_SECRET=your_verification_secret
 # Database Configuration
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=your_password
-POSTGRES_DB=keylindb
+POSTGRES_DB=userdb
 DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 
 # CORS Settings
@@ -182,7 +182,7 @@ LOG_LEVEL=INFO
 
 ## Setting Up the User Database and Admin User Account
 
-> **Adapted from [keylin README](https://github.com/beanone/keylin#setting-up-the-user-database) and [Admin User Account Setup](https://github.com/beanone/keylin#admin-user-account-setup).**
+> **Adapted from [userdb README](https://github.com/beanone/userdb#setting-up-the-user-database) and [Admin User Account Setup](https://github.com/beanone/userdb#admin-user-account-setup).**
 
 Before running Locksmitha, you need to ensure the user table exists in your database.
 
@@ -196,15 +196,15 @@ Before running Locksmitha, you need to ensure the user table exists in your data
   alembic revision --autogenerate -m "create user table"
   alembic upgrade head
   ```
-  Make sure your Alembic `env.py` includes the keylin model's metadata:
+  Make sure your Alembic `env.py` includes the userdb model's metadata:
   ```python
-  from keylin.models import Base
+  from userdb.models import Base
   target_metadata = Base.metadata
   ```
 
 **Programmatic Table Creation (for local/dev):**
   ```python
-  from keylin.models import Base
+  from userdb.models import Base
   from sqlalchemy import create_engine
 
   engine = create_engine("sqlite:///./test.db")  # Or your DB URL
@@ -298,23 +298,14 @@ For advanced deployment scenarios, see [docs/deployment_examples.md](docs/deploy
 | `/auth/forgot-password`  | POST   | No           | Request password reset (**if enabled**)  |
 | `/auth/reset-password`   | POST   | No           | Reset password (**if enabled**)          |
 | `/auth/verify`           | POST   | No           | Email verification (**if enabled**)      |
-| `/api-keys/`             | POST   | Yes          | Create a new API key                     |
-| `/api-keys/`             | GET    | Yes          | List all API keys for the user           |
-| `/api-keys/{key_id}`     | DELETE | Yes          | Delete (revoke) an API key by ID         |
 | `/health`                | GET    | No           | Health check endpoint                    |
 
-**API Key Management:**
-- To use API key endpoints, authenticate as a user, then:
-  - `POST /api-keys/` to create a new API key (provide `service_id`, optional `name` and `expires_at`).
-  - `GET /api-keys/` to list your API keys.
-  - `DELETE /api-keys/{key_id}` to revoke an API key.
 
 ## API Documentation
 
 - **Interactive API docs** are available at [`/docs`](http://localhost:8001/docs) (Swagger UI) and [`/redoc`](http://localhost:8001/redoc) when the service is running.
 - **Typical flow:**
   1. Register or log in to obtain a JWT.
-  2. Use the JWT as a Bearer token for authenticated endpoints (e.g., `/users/me`, `/api-keys/`).
   3. Explore and test endpoints directly in the Swagger UI.
 
 ## Postman Collection
@@ -327,9 +318,6 @@ A ready-to-use Postman collection is provided for testing and exploring the Lock
   - Register user (`/auth/register`)
   - Login user (`/auth/jwt/login`)
   - Get current user info (`/users/me`)
-  - **Create API Key** (`/api-keys/`)
-  - **List API Keys** (`/api-keys/`)
-  - **Delete API Key** (`/api-keys/{api_key_id}`)
 
 ### How to Use
 

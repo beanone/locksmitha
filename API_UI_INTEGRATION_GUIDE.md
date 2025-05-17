@@ -1,6 +1,6 @@
-# Keylin API & UI Integration Guide
+# userdb API & UI Integration Guide
 
-This guide provides practical details for integrating a login service and user management UI with the `keylin` library.
+This guide provides practical details for integrating a login service and user management UI with the `userdb` library.
 
 ---
 

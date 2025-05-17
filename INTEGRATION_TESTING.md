@@ -6,7 +6,7 @@ When writing integration tests for services that use Locksmitha for authenticati
 
 1. **Install Dependencies**
    ```bash
-   pip install fastapi httpx pytest pytest-asyncio keylin
+   pip install fastapi httpx pytest pytest-asyncio userdb
    ```
 
 2. **Configure Test Environment**
@@ -28,7 +28,7 @@ When writing integration tests for services that use Locksmitha for authenticati
 1. **Create Test JWTs**
    ```python
    from uuid import UUID
-   from keylin.jwt_utils import create_jwt_for_user
+   from userdb.jwt_utils import create_jwt_for_user
 
    # Create a test user ID (use a consistent UUID for your tests)
    test_user_id = UUID("12345678-1234-5678-1234-567812345678")
@@ -46,7 +46,7 @@ When writing integration tests for services that use Locksmitha for authenticati
    from fastapi import FastAPI, Depends, HTTPException
    from fastapi.security import HTTPBearer
    import jwt
-   from keylin.config import JWT_SECRET, JWT_ALGORITHM
+   from userdb.config import JWT_SECRET, JWT_ALGORITHM
 
    app = FastAPI()
    security = HTTPBearer()

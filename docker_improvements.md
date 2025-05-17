@@ -90,7 +90,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: keylindb
+      POSTGRES_DB: userdb
     ports:
       - "5432:5432"
 ```

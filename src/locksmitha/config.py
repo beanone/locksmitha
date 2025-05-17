@@ -1,8 +1,8 @@
-from keylin.config import Settings as KeylinSettings
 from pydantic import Field
+from userdb.config import Settings as userdbSettings
 
 
-class Settings(KeylinSettings):
+class Settings(userdbSettings):
     postgres_user: str = Field(
         default="postgres", json_schema_extra={"env": "POSTGRES_USER"}
     )
@@ -10,7 +10,7 @@ class Settings(KeylinSettings):
         default="password", json_schema_extra={"env": "POSTGRES_PASSWORD"}
     )
     postgres_db: str = Field(
-        default="keylindb", json_schema_extra={"env": "POSTGRES_DB"}
+        default="userdbdb", json_schema_extra={"env": "POSTGRES_DB"}
     )
     log_level: str = Field(default="INFO", json_schema_extra={"env": "LOG_LEVEL"})
     smtp_host: str = Field(default="localhost", json_schema_extra={"env": "SMTP_HOST"})

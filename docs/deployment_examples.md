@@ -28,7 +28,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: keylindb
+      POSTGRES_DB: userdb
     ports:
       - "5432:5432"
 ```
@@ -36,7 +36,7 @@ services:
 **.env Example:**
 ```env
 JWT_SECRET=supersecretjwtkey
-DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
+DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/userdb
 RESET_PASSWORD_SECRET=supersecretresetkey
 VERIFICATION_SECRET=supersecretverifykey
 ALLOWED_ORIGINS=http://localhost,http://127.0.0.1
@@ -65,7 +65,7 @@ docker run --env-file .env -p 8000:8000 locksmitha
 - Configure your `.env` with the Postgres connection string:
 
 ```env
-DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/keylindb
+DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/userdb
 ```
 
 - With Docker Compose, the database is managed as a separate service (see above).
@@ -162,4 +162,4 @@ docker run --env-file myapp/.env -p 9000:9000 myapp
 
 ---
 
-For more details, see the main [README.md](../README.md) and [keylin documentation](https://github.com/beanone/keylin).
+For more details, see the main [README.md](../README.md) and [userdb documentation](https://github.com/beanone/userdb).

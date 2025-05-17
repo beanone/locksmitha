@@ -18,8 +18,8 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
-from keylin.db import get_user_db
-from keylin.models import User
+from userdb.db import get_user_db
+from userdb.models import User
 
 from .config import Settings
 from .email_utils import send_email
