@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from userdb import db
-from userdb.schemas import UserCreate, UserRead
+from userdb.schemas import UserCreate, UserRead, UserUpdate
 
 from .auth import auth_backend, fastapi_users
 from .config import Settings
@@ -50,7 +50,7 @@ def create_app() -> FastAPI:
         tags=["auth"],
     )
     app.include_router(
-        fastapi_users.get_users_router(UserRead, UserRead),
+        fastapi_users.get_users_router(UserRead, UserUpdate),
         prefix="/users",
         tags=["users"],
     )

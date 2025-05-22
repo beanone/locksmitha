@@ -168,12 +168,12 @@
                     "urlencoded": [
                         {
                             "key": "username",
-                            "value": "userdb@login.com",
+                            "value": "keylin@locksmitha.com",
                             "type": "text"
                         },
                         {
                             "key": "password",
-                            "value": "login",
+                            "value": "locksmitha",
                             "type": "text"
                         }
                     ]
@@ -302,7 +302,7 @@
                 },
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n  \"id\": \"{{user_id}}\",\n  \"email\": \"testuser@example.com\",\n  \"is_active\": true,\n  \"is_superuser\": false,\n  \"is_verified\": false,\n  \"full_name\": \"Updated Name\"\n}"
+                    "raw": "{\n  \"id\": \"{{user_id}}\",\n  \"is_active\": true,\n  \"is_superuser\": false,\n  \"is_verified\": false,\n  \"full_name\": \"Updated Name\"\n}"
                 },
                 "description": "Update current user's profile."
             },
@@ -590,136 +590,6 @@
                         "exec": [
                             "pm.test('Status code is 200', function () {",
                             "    pm.response.to.have.status(200);",
-                            "});"
-                        ]
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Create API Key",
-            "event": [
-                {
-                    "listen": "prerequest",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "// Calculate expires_at 1 hour from now in ISO 8601 format",
-                            "var now = new Date();",
-                            "now.setHours(now.getHours() + 1);",
-                            "pm.globals.set('expires_at', now.toISOString());"
-                        ]
-                    }
-                },
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('Status code is 201', function () {",
-                            "    pm.response.to.have.status(201);",
-                            "});",
-                            "var jsonData = pm.response.json();",
-                            "pm.globals.set('key_id', jsonData.id);"
-                        ]
-                    }
-                }
-            ],
-            "request": {
-                "method": "POST",
-                "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{access_token}}"
-                    },
-                    {
-                        "key": "Content-Type",
-                        "value": "application/json"
-                    }
-                ],
-                "url": {
-                    "raw": "{{base_url}}/api-keys/",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "api-keys",
-                        ""
-                    ]
-                },
-                "body": {
-                    "mode": "raw",
-                    "raw": "{\n  \"name\": \"Test Key\",\n  \"service_id\": \"svc1\",\n  \"expires_at\": \"{{expires_at}}\"\n}"
-                },
-                "description": "Create a new API key."
-            }
-        },
-        {
-            "name": "List API Keys",
-            "request": {
-                "method": "GET",
-                "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{access_token}}"
-                    }
-                ],
-                "url": {
-                    "raw": "{{base_url}}/api-keys/",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "api-keys",
-                        ""
-                    ]
-                },
-                "description": "List all API keys for the user."
-            },
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('Status code is 200', function () {",
-                            "    pm.response.to.have.status(200);",
-                            "});"
-                        ]
-                    }
-                }
-            ]
-        },
-        {
-            "name": "Delete API Key",
-            "request": {
-                "method": "DELETE",
-                "header": [
-                    {
-                        "key": "Authorization",
-                        "value": "Bearer {{access_token}}"
-                    }
-                ],
-                "url": {
-                    "raw": "{{base_url}}/api-keys/{{key_id}}",
-                    "host": [
-                        "{{base_url}}"
-                    ],
-                    "path": [
-                        "api-keys",
-                        "{{key_id}}"
-                    ]
-                },
-                "description": "Delete (revoke) an API key by ID."
-            },
-            "event": [
-                {
-                    "listen": "test",
-                    "script": {
-                        "type": "text/javascript",
-                        "exec": [
-                            "pm.test('Status code is 204', function () {",
-                            "    pm.response.to.have.status(204);",
                             "});"
                         ]
                     }
