@@ -1,7 +1,7 @@
 # login
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/beanone/login/refs/heads/main/docs/assets/logos/locksmitha.svg" alt="login Login Service" width="100%">
+  <img src="https://raw.githubusercontent.com/beanone/login/refs/heads/main/docs/assets/logos/locksmitha.svg" alt="Login Service" width="100%">
 </p>
 
 [![GitHub release](https://img.shields.io/github/v/release/beanone/login?include_prereleases&sort=semver)](https://github.com/beanone/login/releases)
