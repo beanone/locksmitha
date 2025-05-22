@@ -240,6 +240,32 @@ Before running login, you need to ensure the user table exists in your database.
 
 > **Also:** To avoid stale library issues, always use `docker-compose build --no-cache` (or the equivalent dev command) after updating dependencies.
 
+### Troubleshooting
+
+#### Container Name Conflicts
+
+If you see an error like:
+```
+Error response from daemon: Conflict. The container name "/mailpit" is already in use...
+```
+
+This means a container with the same name is already running. To fix this:
+
+1. Stop and remove all containers:
+   ```bash
+   docker-compose -f docker-compose.dev.yml down
+   ```
+
+2. Remove the specific conflicting container:
+   ```bash
+   docker rm -f mailpit
+   ```
+
+3. Start the services again:
+   ```bash
+   docker-compose -f docker-compose.dev.yml up
+   ```
+
 ### Production
 
 The production setup uses:
@@ -263,8 +289,8 @@ The development setup includes:
 - Persistent database volume
 
 ```bash
-docker-compose -f docker-compose.dev.yml --build --no-cache
-docker-compose -f docker-compose.dev.yml up
+docker compose -f docker-compose.dev.yml build --no-cache
+docker compose -f docker-compose.dev.yml up
 ```
 
 ### Resource Limits
